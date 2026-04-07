@@ -12,12 +12,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         TranslateClient.Builder()
-            .apiKey("")
+            .apiKey("tp_live_9235d8be34786a40f6698a363266eac4")
             .build()
 
         setContent {
             MaterialTheme {
-                TranslationScreen()
+                TranslationScreen(
+                    translateTo = "de",
+                    translateFrom = "en",
+                    showHeader = false,
+                    translateLanguageSelector = null
+                )
             }
         }
     }
