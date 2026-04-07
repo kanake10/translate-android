@@ -29,21 +29,21 @@ fun TranslationScreen(
     showHeader: Boolean = true,
     translateFrom: String? = null,
     translateTo: String? = null,
-    languageSelector: (@Composable (
+    translateLanguageSelector: (@Composable (
         languages: List<Language>,
         selectedSource: Language?,
         selectedTarget: Language?,
         onSourceSelected: (Language) -> Unit,
         onTargetSelected: (Language) -> Unit
     ) -> Unit)? = { languages, source, target, onSource, onTarget ->
-        LanguageSelector(languages, source, target, onSource, onTarget)
+        TranslateLanguageSelector(languages, source, target, onSource, onTarget)
     },
 
-    inputField: @Composable (
+    translateInputField: @Composable (
         text: String,
         onTextChange: (String) -> Unit
     ) -> Unit = { text, onChange ->
-        InputField(text, onChange)
+        TranslateInputField(text, onChange)
     },
 
     translationContent: @Composable (
@@ -52,15 +52,15 @@ fun TranslationScreen(
         TranslationContent(translated)
     },
 
-    actionButton: @Composable (
+    translateButton: @Composable (
         isLoading: Boolean,
         onClick: () -> Unit
     ) -> Unit = { isLoading, onClick ->
-        TranslateBtn(isLoading, onClick)
+        TranslateButton(isLoading, onClick)
     },
 
-    errorContent: @Composable (String) -> Unit = { error ->
-        ErrorContent(error)
+    translateErrorContent: @Composable (String) -> Unit = { error ->
+        TranslateErrorContent(error)
     }
 ) {
 
@@ -89,7 +89,7 @@ fun TranslationScreen(
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        languageSelector?.invoke(
+        translateLanguageSelector?.invoke(
             uiState.languages,
             uiState.selectedSource,
             uiState.selectedTarget,
@@ -99,7 +99,7 @@ fun TranslationScreen(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        inputField(
+        translateInputField(
             uiState.inputText,
             viewModel::updateInputText
         )
@@ -111,11 +111,11 @@ fun TranslationScreen(
         Spacer(modifier = Modifier.height(16.dp))
 
         uiState.error?.let {
-            errorContent(it)
+            translateErrorContent(it)
             Spacer(modifier = Modifier.height(12.dp))
         }
 
-        actionButton(
+        translateButton(
             uiState.isLoading,
             viewModel::translate
         )
@@ -124,7 +124,7 @@ fun TranslationScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LanguageSelector(
+fun TranslateLanguageSelector(
     languages: List<Language>,
     selectedSource: Language?,
     selectedTarget: Language?,
@@ -214,7 +214,7 @@ fun LanguageSelector(
 }
 
 @Composable
-fun InputField(
+fun TranslateInputField(
     text: String,
     onTextChange: (String) -> Unit
 ) {
@@ -264,7 +264,7 @@ fun TranslationContent(
 }
 
 @Composable
-fun TranslateBtn(
+fun TranslateButton(
     isLoading: Boolean,
     onClick: () -> Unit
 ) {
@@ -286,7 +286,7 @@ fun TranslateBtn(
 }
 
 @Composable
-fun ErrorContent(
+fun TranslateErrorContent(
     error: String
 ) {
     Text(
@@ -297,7 +297,7 @@ fun ErrorContent(
 }
 
 @Composable
-fun TranslateButton(
+fun SeeTranslation(
     postText: String,
     modifier: Modifier = Modifier,
     repository: TranslateRepository = TranslateClient.getClient(),
