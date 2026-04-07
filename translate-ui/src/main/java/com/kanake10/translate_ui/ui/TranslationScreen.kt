@@ -1,0 +1,373 @@
+package com.kanake10.translate_ui.ui
+
+import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.kanake10.translate.TranslateClient
+import com.kanake10.translate.domain.models.Language
+import com.kanake10.translate.repo.TranslateRepository
+import com.kanake10.translate_ui.vm.TranslateController
+import com.kanake10.translate_ui.vm.TranslationViewModel
+import com.kanake10.translate_ui.vm.TranslationViewModelFactory
+
+@Composable
+fun TranslationScreen(
+    viewModel: TranslationViewModel = viewModel(
+        factory = TranslationViewModelFactory(
+            TranslateClient.getClient()
+        )
+    ),
+    modifier: Modifier = Modifier,
+    title: String = "",
+    showHeader: Boolean = true,
+    translateFrom: String? = null,
+    translateTo: String? = null,
+    languageSelector: (@Composable (
+        languages: List<Language>,
+        selectedSource: Language?,
+        selectedTarget: Language?,
+        onSourceSelected: (Language) -> Unit,
+        onTargetSelected: (Language) -> Unit
+    ) -> Unit)? = { languages, source, target, onSource, onTarget ->
+        LanguageSelector(languages, source, target, onSource, onTarget)
+    },
+
+    inputField: @Composable (
+        text: String,
+        onTextChange: (String) -> Unit
+    ) -> Unit = { text, onChange ->
+        InputField(text, onChange)
+    },
+
+    translationContent: @Composable (
+        translatedText: String
+    ) -> Unit = { translated ->
+        TranslationContent(translated)
+    },
+
+    actionButton: @Composable (
+        isLoading: Boolean,
+        onClick: () -> Unit
+    ) -> Unit = { isLoading, onClick ->
+        TranslateBtn(isLoading, onClick)
+    },
+
+    errorContent: @Composable (String) -> Unit = { error ->
+        ErrorContent(error)
+    }
+) {
+
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(uiState.languages) {
+        translateFrom?.let { code ->
+            uiState.languages.find { it.code == code }?.let { viewModel.selectSource(it) }
+        }
+        translateTo?.let { code ->
+            uiState.languages.find { it.code == code }?.let { viewModel.selectTarget(it) }
+        }
+    }
+
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+
+        if (showHeader) {
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleLarge
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        languageSelector?.invoke(
+            uiState.languages,
+            uiState.selectedSource,
+            uiState.selectedTarget,
+            viewModel::selectSource,
+            viewModel::selectTarget
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        inputField(
+            uiState.inputText,
+            viewModel::updateInputText
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        translationContent(uiState.translatedText)
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        uiState.error?.let {
+            errorContent(it)
+            Spacer(modifier = Modifier.height(12.dp))
+        }
+
+        actionButton(
+            uiState.isLoading,
+            viewModel::translate
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun LanguageSelector(
+    languages: List<Language>,
+    selectedSource: Language?,
+    selectedTarget: Language?,
+    onSourceSelected: (Language) -> Unit,
+    onTargetSelected: (Language) -> Unit
+) {
+    var sourceExpanded by remember { mutableStateOf(false) }
+    var targetExpanded by remember { mutableStateOf(false) }
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+
+        ExposedDropdownMenuBox(
+            expanded = sourceExpanded,
+            onExpandedChange = { sourceExpanded = !sourceExpanded },
+            modifier = Modifier.weight(1f)
+        ) {
+
+            OutlinedTextField(
+                value = selectedSource?.name ?: "Auto Detect",
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("From") },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = sourceExpanded)
+                },
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
+            )
+
+            ExposedDropdownMenu(
+                expanded = sourceExpanded,
+                onDismissRequest = { sourceExpanded = false }
+            ) {
+                languages.forEach { language ->
+                    DropdownMenuItem(
+                        text = { Text(language.name) },
+                        onClick = {
+                            onSourceSelected(language)
+                            sourceExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.width(12.dp))
+
+        ExposedDropdownMenuBox(
+            expanded = targetExpanded,
+            onExpandedChange = { targetExpanded = !targetExpanded },
+            modifier = Modifier.weight(1f)
+        ) {
+
+            OutlinedTextField(
+                value = selectedTarget?.name ?: "English",
+                onValueChange = {},
+                readOnly = true,
+                label = { Text("To") },
+                trailingIcon = {
+                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = targetExpanded)
+                },
+                modifier = Modifier
+                    .menuAnchor()
+                    .fillMaxWidth()
+            )
+
+            ExposedDropdownMenu(
+                expanded = targetExpanded,
+                onDismissRequest = { targetExpanded = false }
+            ) {
+                languages.forEach { language ->
+                    DropdownMenuItem(
+                        text = { Text(language.name) },
+                        onClick = {
+                            onTargetSelected(language)
+                            targetExpanded = false
+                        }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun InputField(
+    text: String,
+    onTextChange: (String) -> Unit
+) {
+    Column {
+        Text(
+            text = "Enter text",
+            style = MaterialTheme.typography.titleMedium
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        BasicTextField(
+            value = text,
+            onValueChange = onTextChange,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(120.dp)
+                .border(
+                    width = 1.dp,
+                    color = MaterialTheme.colorScheme.primary,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(12.dp)
+        )
+    }
+}
+
+@Composable
+fun TranslationContent(
+    text: String
+) {
+    if (text.isNotEmpty()) {
+        Column {
+            Text(
+                text = "Translation",
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            Text(
+                text = text,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
+    }
+}
+
+@Composable
+fun TranslateBtn(
+    isLoading: Boolean,
+    onClick: () -> Unit
+) {
+    Button(
+        onClick = onClick,
+        enabled = !isLoading,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(18.dp),
+                strokeWidth = 2.dp
+            )
+        } else {
+            Text("Translate")
+        }
+    }
+}
+
+@Composable
+fun ErrorContent(
+    error: String
+) {
+    Text(
+        text = error,
+        color = MaterialTheme.colorScheme.error,
+        style = MaterialTheme.typography.bodyMedium
+    )
+}
+
+@Composable
+fun TranslateButton(
+    postText: String,
+    modifier: Modifier = Modifier,
+    repository: TranslateRepository = TranslateClient.getClient(),
+    buttonContent: @Composable (
+        isTranslated: Boolean,
+        isLoading: Boolean,
+        onClick: () -> Unit
+    ) -> Unit = { isTranslated, isLoading, onClick ->
+
+        Button(
+            onClick = onClick,
+            enabled = !isLoading,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            if (isLoading) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp
+                )
+            } else {
+                Text(if (isTranslated) "Undo" else "Translate")
+            }
+        }
+    }
+) {
+
+    val controller = remember {
+        TranslateController(repository)
+    }
+
+    LaunchedEffect(postText) {
+        controller.setText(postText)
+    }
+
+    val text by controller.text.collectAsStateWithLifecycle()
+    val isTranslated by controller.isTranslated.collectAsStateWithLifecycle()
+    val isLoading by controller.isLoading.collectAsStateWithLifecycle()
+    val error by controller.error.collectAsStateWithLifecycle()
+
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .border(
+                    1.dp,
+                    MaterialTheme.colorScheme.primary,
+                    RoundedCornerShape(8.dp)
+                )
+                .padding(12.dp)
+        ) {
+            Text(text = text)
+        }
+
+        buttonContent(
+            isTranslated,
+            isLoading
+        ) {
+            controller.toggleTranslate()
+        }
+
+        error?.let {
+            Text(
+                text = it,
+                color = MaterialTheme.colorScheme.error
+            )
+        }
+    }
+}
