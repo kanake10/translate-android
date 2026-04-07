@@ -12,7 +12,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         TranslateClient.Builder()
-            .apiKey("tp_live_9235d8be34786a40f6698a363266eac4")
+            .apiKey("")
             .build()
 
         setContent {
