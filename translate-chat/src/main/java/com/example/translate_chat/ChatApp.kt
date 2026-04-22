@@ -8,8 +8,9 @@ class ChatApp : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        TranslateClient.Builder()
-            .apiKey("")
-            .build()
+        TranslateClient.init(
+            TranslateClient.Builder()
+                .apiKey("")
+        )
     }
 }

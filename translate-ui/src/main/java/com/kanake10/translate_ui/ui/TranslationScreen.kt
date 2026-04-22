@@ -19,45 +19,39 @@ import com.kanake10.translate_ui.vm.TranslationViewModel
 fun TranslationScreen(
     viewModel: TranslationViewModel = viewModel(factory = TranslationViewModel.Factory),
     modifier: Modifier = Modifier,
-    title: String = "",
-    showHeader: Boolean = true,
     translateFrom: String? = null,
     translateTo: String? = null,
+    headerContent: @Composable (() -> Unit)? = null,
     translateLanguageSelector: (@Composable (
         languages: List<Language>,
         selectedSource: Language?,
         selectedTarget: Language?,
         onSourceSelected: (Language) -> Unit,
-        onTargetSelected: (Language) -> Unit
+        onTargetSelected: (Language) -> Unit,
     ) -> Unit)? = { languages, source, target, onSource, onTarget ->
         TranslateLanguageSelector(languages, source, target, onSource, onTarget)
     },
-
     translateInputField: @Composable (
         text: String,
-        onTextChange: (String) -> Unit
+        onTextChange: (String) -> Unit,
     ) -> Unit = { text, onChange ->
         TranslateInputField(text, onChange)
     },
-
     translationContent: @Composable (
-        translatedText: String
+        translatedText: String,
     ) -> Unit = { translated ->
         TranslationContent(translated)
     },
-
     translateButton: @Composable (
         isLoading: Boolean,
-        onClick: () -> Unit
+        onClick: () -> Unit,
     ) -> Unit = { isLoading, onClick ->
         TranslateButton(isLoading, onClick)
     },
-
     translateErrorContent: @Composable (String) -> Unit = { error ->
         TranslateErrorContent(error)
-    }
+    },
 ) {
-
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.languages) {
@@ -74,12 +68,8 @@ fun TranslationScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
-
-        if (showHeader) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge
-            )
+        headerContent?.let {
+            it()
             Spacer(modifier = Modifier.height(12.dp))
         }
 
@@ -88,14 +78,14 @@ fun TranslationScreen(
             uiState.selectedSource,
             uiState.selectedTarget,
             viewModel::selectSource,
-            viewModel::selectTarget
+            viewModel::selectTarget,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
 
         translateInputField(
             uiState.inputText,
-            viewModel::updateInputText
+            viewModel::updateInputText,
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -111,7 +101,7 @@ fun TranslationScreen(
 
         translateButton(
             uiState.isLoading,
-            viewModel::translate
+            viewModel::translate,
         )
     }
 }
@@ -294,37 +284,41 @@ internal fun TranslateErrorContent(
 fun SeeTranslation(
     postText: String,
     modifier: Modifier = Modifier,
+    textContent: @Composable (text: String) -> Unit = { text ->
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(100.dp)
+                .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
+                .padding(12.dp)
+        ) {
+            Text(text = text)
+        }
+    },
+    errorContent: @Composable (error: String) -> Unit = { error ->
+        Text(text = error, color = MaterialTheme.colorScheme.error)
+    },
     buttonContent: @Composable (
         isTranslated: Boolean,
         isLoading: Boolean,
-        onClick: () -> Unit
+        onClick: () -> Unit,
     ) -> Unit = { isTranslated, isLoading, onClick ->
-
         Button(
             onClick = onClick,
             enabled = !isLoading,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(18.dp),
-                    strokeWidth = 2.dp
-                )
+                CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
             } else {
                 Text(if (isTranslated) "Undo" else "Translate")
             }
         }
-    }
+    },
 ) {
+    val controller = remember { TranslateController(TranslateClient.getClient()) }
 
-    val controller = remember {
-        TranslateController(TranslateClient.getClient())
-    }
-
-    DisposableEffect(Unit) {
-        onDispose { controller.release() }
-    }
-
+    DisposableEffect(Unit) { onDispose { controller.release() } }
     LaunchedEffect(postText) { controller.setText(postText) }
 
     val text by controller.text.collectAsStateWithLifecycle()
@@ -334,35 +328,10 @@ fun SeeTranslation(
 
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .border(
-                    1.dp,
-                    MaterialTheme.colorScheme.primary,
-                    RoundedCornerShape(8.dp)
-                )
-                .padding(12.dp)
-        ) {
-            Text(text = text)
-        }
-
-        buttonContent(
-            isTranslated,
-            isLoading
-        ) {
-            controller.toggleTranslate()
-        }
-
-        error?.let {
-            Text(
-                text = it,
-                color = MaterialTheme.colorScheme.error
-            )
-        }
+        textContent(text)
+        buttonContent(isTranslated, isLoading) { controller.toggleTranslate() }
+        error?.let { errorContent(it) }
     }
 }

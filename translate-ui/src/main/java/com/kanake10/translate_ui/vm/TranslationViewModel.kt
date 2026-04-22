@@ -7,7 +7,6 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.kanake10.translate.TranslateClient
 import com.kanake10.translate.domain.models.Language
 import com.kanake10.translate.repo.TranslateRepository
-import com.kanake10.translate.util.TranslateError
 import com.kanake10.translate.util.TranslateResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -82,17 +81,13 @@ class TranslationViewModel(
                 )
                 is TranslateResult.Error -> _uiState.value = _uiState.value.copy(
                     isLoading = false,
-                    error = result.error.toMessage(),
+                    error = result.error.toString(),
                 )
             }
         }
     }
 
     companion object {
-        /**
-         * Factory that resolves [TranslateRepository] from [TranslateClient].
-         * The screen never needs to touch [TranslateClient] directly.
-         */
         val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
             @Suppress("UNCHECKED_CAST")
             override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T =
@@ -101,15 +96,4 @@ class TranslationViewModel(
     }
 }
 
-fun TranslateError.toMessage(): String = when (this) {
-    TranslateError.MissingApiKey -> "API key is missing"
-    TranslateError.InvalidApiKey -> "Invalid API key"
-    is TranslateError.InsufficientCredits -> "Not enough credits"
-    TranslateError.RateLimitExceeded -> "Too many requests. Try again later"
-    is TranslateError.BadRequest -> detail
-    TranslateError.NotFound -> "Resource not found"
-    TranslateError.InternalServerError -> "Server error"
-    TranslateError.ServiceUnavailable -> "Service unavailable"
-    TranslateError.NetworkError -> "No internet connection"
-    is TranslateError.Unknown -> detail.ifEmpty { "Something went wrong" }
-}
+

@@ -7,23 +7,50 @@ import com.kanake10.translate.repo.TranslateRepositoryImpl
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
+import java.util.concurrent.TimeUnit
+
 object TranslateClient {
 
-    private lateinit var repository: TranslateRepository
+    @Volatile private var repository: TranslateRepository? = null
+
+    fun init(builder: Builder) {
+        repository = builder.buildRepository()
+    }
+
+    fun getClient(): TranslateRepository =
+        repository ?: error(
+            "TranslateClient is not initialized. " +
+                    "Call TranslateClient.init() in your Application.onCreate() before use."
+        )
 
     class Builder {
         private var apiKey: String? = null
         private var baseUrl: String = "https://api.translateplus.io/"
         private var okHttpClient: OkHttpClient? = null
+        private var timeoutSeconds: Long = 30L
 
-        fun apiKey(key: String) = apply { this.apiKey = key }
+        fun apiKey(key: String) = apply { apiKey = key }
 
-        fun build() {
-            val key = apiKey ?: throw IllegalArgumentException("API key must be provided")
+        fun baseUrl(url: String) = apply { baseUrl = url }
 
-            val client = okHttpClient ?: OkHttpClient.Builder()
-                .addInterceptor(TranslateInterceptors(key))
-                .build()
+        fun okHttpClient(client: OkHttpClient) = apply { okHttpClient = client }
+
+        fun timeoutSeconds(seconds: Long) = apply { timeoutSeconds = seconds }
+
+        internal fun buildRepository(): TranslateRepository {
+            val key = requireNotNull(apiKey) {
+                "apiKey must be provided. Call Builder.apiKey(\"your-key\")"
+            }
+            val client = okHttpClient
+                ?.newBuilder()
+                ?.addInterceptor(TranslateInterceptors(key))
+                ?.build()
+                ?: OkHttpClient.Builder()
+                    .addInterceptor(TranslateInterceptors(key))
+                    .connectTimeout(timeoutSeconds, TimeUnit.SECONDS)
+                    .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
+                    .writeTimeout(timeoutSeconds, TimeUnit.SECONDS)
+                    .build()
 
             val retrofit = Retrofit.Builder()
                 .baseUrl(baseUrl)
@@ -31,14 +58,7 @@ object TranslateClient {
                 .addConverterFactory(MoshiConverterFactory.create())
                 .build()
 
-            val api = retrofit.create(TranslateApi::class.java)
-            repository = TranslateRepositoryImpl(api)
-
+            return TranslateRepositoryImpl(retrofit.create(TranslateApi::class.java))
         }
-    }
-
-    fun getClient(): TranslateRepository {
-        check(::repository.isInitialized) { "TranslateSdk is not initialized" }
-        return repository
     }
 }

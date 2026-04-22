@@ -11,7 +11,6 @@ import com.kanake10.translate.TranslateClient
 import com.kanake10.translate.domain.models.Language
 import com.kanake10.translate.repo.TranslateRepository
 import com.kanake10.translate.util.TranslateResult
-import com.kanake10.translate_ui.vm.toMessage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch

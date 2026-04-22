@@ -14,6 +14,19 @@ sealed class TranslateError {
     object ServiceUnavailable : TranslateError()
     object NetworkError : TranslateError()
     data class Unknown(val code: Int, val detail: String) : TranslateError()
+
+    fun toMessage(): String = when (this) {
+        is MissingApiKey -> "API key is missing"
+        is InvalidApiKey -> "Invalid API key"
+        is InsufficientCredits -> "Not enough credits"
+        is RateLimitExceeded -> "Too many requests. Try again later"
+        is BadRequest -> detail
+        is NotFound -> "Resource not found"
+        is InternalServerError -> "Server error"
+        is ServiceUnavailable -> "Service unavailable"
+        is NetworkError -> "No internet connection"
+        is Unknown -> detail.ifEmpty { "Something went wrong" }
+    }
 }
 
 sealed class TranslateResult<out T> {
@@ -22,62 +35,44 @@ sealed class TranslateResult<out T> {
 }
 
 internal fun HttpException.toTranslateError(): TranslateError {
-
     val errorBody = this.response()?.errorBody()?.string().orEmpty()
-
     val detail = try {
-        val json = JSONObject(errorBody)
-        json.optString("detail", "")
+        JSONObject(errorBody).optString("detail", "")
     } catch (_: Exception) {
         ""
     }
 
     return when (this.code()) {
-
         400 -> TranslateError.BadRequest(detail)
-
         401 -> TranslateError.InvalidApiKey
-
         402 -> {
-            val regex = """remaining (\d+).+required (\d+)""".toRegex()
-            val match = regex.find(detail)
-
-            val remaining = match?.groupValues?.getOrNull(1)?.toIntOrNull() ?: 0
-            val required = match?.groupValues?.getOrNull(2)?.toIntOrNull() ?: 0
-
-            TranslateError.InsufficientCredits(remaining, required)
+            val match = """remaining (\d+).+required (\d+)""".toRegex().find(detail)
+            TranslateError.InsufficientCredits(
+                remaining = match?.groupValues?.getOrNull(1)?.toIntOrNull() ?: 0,
+                required = match?.groupValues?.getOrNull(2)?.toIntOrNull() ?: 0,
+            )
         }
-
         403 -> if (detail.contains("required", ignoreCase = true)) {
             TranslateError.MissingApiKey
         } else {
             TranslateError.InvalidApiKey
         }
-
         404 -> TranslateError.NotFound
-
         429 -> TranslateError.RateLimitExceeded
-
         500 -> TranslateError.InternalServerError
-
         503 -> TranslateError.ServiceUnavailable
-
         else -> TranslateError.Unknown(this.code(), detail)
     }
 }
 
-suspend fun <T> safeApiCall(
+internal suspend fun <T> safeApiCall(
     call: suspend () -> T
-): TranslateResult<T> {
-    return try {
-        TranslateResult.Success(call())
-    } catch (e: HttpException) {
-        TranslateResult.Error(e.toTranslateError())
-    } catch (e: IOException) {
-        TranslateResult.Error(TranslateError.NetworkError)
-    } catch (e: Exception) {
-        TranslateResult.Error(
-            TranslateError.Unknown(-1, e.message ?: "Unknown error")
-        )
-    }
+): TranslateResult<T> = try {
+    TranslateResult.Success(call())
+} catch (e: HttpException) {
+    TranslateResult.Error(e.toTranslateError())
+} catch (e: IOException) {
+    TranslateResult.Error(TranslateError.NetworkError)
+} catch (e: Exception) {
+    TranslateResult.Error(TranslateError.Unknown(-1, e.message ?: "Unknown error"))
 }

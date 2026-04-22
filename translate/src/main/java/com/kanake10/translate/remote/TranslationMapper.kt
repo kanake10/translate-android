@@ -30,12 +30,7 @@ internal fun HealthResponse.toDomain() = HealthStatus(
     version = version
 )
 
-internal fun SupportedLanguagesResponse.toDomain(): List<Language> {
-    val languages = supported_languages.map { (name, code) ->
-        Language(name = name, code = code)
-    }
-
-    return languages
-        .sortedBy { it.name }
-        .sortedByDescending { it.code == "auto" }
-}
+internal fun SupportedLanguagesResponse.toDomain(): List<Language> =
+    supported_languages
+        .map { (name, code) -> Language(name = name, code = code) }
+        .sortedWith(compareByDescending<Language> { it.code == "auto" }.thenBy { it.name })
