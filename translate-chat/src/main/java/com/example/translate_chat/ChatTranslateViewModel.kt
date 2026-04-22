@@ -4,7 +4,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.CreationExtras
 import com.kanake10.translate.TranslateClient
 import com.kanake10.translate.domain.models.Language
 import com.kanake10.translate.repo.TranslateRepository
@@ -16,7 +18,7 @@ import kotlinx.coroutines.launch
 import java.util.UUID
 
 class ChatTranslateViewModel(
-    private val repository: TranslateRepository = TranslateClient.getClient()
+    private val repository: TranslateRepository
 ) : ViewModel() {
 
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
@@ -89,6 +91,14 @@ class ChatTranslateViewModel(
                 } else it
             }
             isTranslating = false
+        }
+    }
+
+    companion object {
+        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            @Suppress("UNCHECKED_CAST")
+            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T =
+                ChatTranslateViewModel(TranslateClient.getClient()) as T
         }
     }
 }

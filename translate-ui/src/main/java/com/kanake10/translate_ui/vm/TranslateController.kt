@@ -4,14 +4,17 @@ import com.kanake10.translate.repo.TranslateRepository
 import com.kanake10.translate.util.TranslateResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class TranslateController(
-    val repository: TranslateRepository
+class TranslateController internal constructor(
+    private val repository: TranslateRepository,
 ) {
+    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     private val _text = MutableStateFlow("")
     val text: StateFlow<String> = _text
@@ -29,6 +32,10 @@ class TranslateController(
 
     fun setText(value: String) {
         _text.value = value
+        if (_isTranslated.value) {
+            _isTranslated.value = false
+            originalText = ""
+        }
     }
 
     fun toggleTranslate(target: String = "en") {
@@ -43,28 +50,26 @@ class TranslateController(
         _isLoading.value = true
         _error.value = null
 
-        CoroutineScope(Dispatchers.IO).launch {
-            val result = repository.translate(
+        scope.launch {
+            when (val result = repository.translate(
                 text = _text.value,
                 source = "auto",
-                target = target
-            )
-
-            withContext(Dispatchers.Main) {
-                _isLoading.value = false
-
-                when (result) {
-                    is TranslateResult.Success -> {
-                        originalText = _text.value
-                        _text.value = result.data.translatedText
-                        _isTranslated.value = true
-                    }
-
-                    is TranslateResult.Error -> {
-                        _error.value = result.error.toMessage()
-                    }
+                target = target,
+            )) {
+                is TranslateResult.Success -> {
+                    originalText = _text.value
+                    _text.value = result.data.translatedText
+                    _isTranslated.value = true
+                }
+                is TranslateResult.Error -> {
+                    _error.value = result.error.toMessage()
                 }
             }
+            _isLoading.value = false
         }
+    }
+
+    fun release() {
+        scope.cancel()
     }
 }

@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.translate_chat.ui.theme.TranslateTheme
 import com.kanake10.translate.domain.models.Language
+import com.kanake10.translate_ui.vm.TranslationViewModel
 
 class ChatActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -64,7 +65,7 @@ class ChatActivity : ComponentActivity() {
 }
 
 @Composable
-fun TranslationChatScreen(viewModel: ChatTranslateViewModel = viewModel()) {
+fun TranslationChatScreen(viewModel: ChatTranslateViewModel = viewModel(factory = ChatTranslateViewModel.Factory)) {
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val languages by viewModel.languages.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
@@ -178,7 +179,7 @@ fun TranslationChatScreen(viewModel: ChatTranslateViewModel = viewModel()) {
 }
 
 @Composable
-fun LanguageDropdown(
+internal fun LanguageDropdown(
     languages: List<Language>,
     selectedLanguage: Language?,
     onLanguageSelected: (Language) -> Unit
@@ -207,7 +208,7 @@ fun LanguageDropdown(
 }
 
 @Composable
-fun ChatBubble(message: ChatMessage) {
+internal fun ChatBubble(message: ChatMessage) {
     Column(
         modifier = Modifier
             .fillMaxWidth()

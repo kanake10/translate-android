@@ -12,18 +12,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kanake10.translate.TranslateClient
 import com.kanake10.translate.domain.models.Language
-import com.kanake10.translate.repo.TranslateRepository
 import com.kanake10.translate_ui.vm.TranslateController
 import com.kanake10.translate_ui.vm.TranslationViewModel
-import com.kanake10.translate_ui.vm.TranslationViewModelFactory
 
 @Composable
 fun TranslationScreen(
-    viewModel: TranslationViewModel = viewModel(
-        factory = TranslationViewModelFactory(
-            TranslateClient.getClient()
-        )
-    ),
+    viewModel: TranslationViewModel = viewModel(factory = TranslationViewModel.Factory),
     modifier: Modifier = Modifier,
     title: String = "",
     showHeader: Boolean = true,
@@ -124,7 +118,7 @@ fun TranslationScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TranslateLanguageSelector(
+internal fun TranslateLanguageSelector(
     languages: List<Language>,
     selectedSource: Language?,
     selectedTarget: Language?,
@@ -214,7 +208,7 @@ fun TranslateLanguageSelector(
 }
 
 @Composable
-fun TranslateInputField(
+internal fun TranslateInputField(
     text: String,
     onTextChange: (String) -> Unit
 ) {
@@ -243,7 +237,7 @@ fun TranslateInputField(
 }
 
 @Composable
-fun TranslationContent(
+internal fun TranslationContent(
     text: String
 ) {
     if (text.isNotEmpty()) {
@@ -264,7 +258,7 @@ fun TranslationContent(
 }
 
 @Composable
-fun TranslateButton(
+internal fun TranslateButton(
     isLoading: Boolean,
     onClick: () -> Unit
 ) {
@@ -286,7 +280,7 @@ fun TranslateButton(
 }
 
 @Composable
-fun TranslateErrorContent(
+internal fun TranslateErrorContent(
     error: String
 ) {
     Text(
@@ -300,7 +294,6 @@ fun TranslateErrorContent(
 fun SeeTranslation(
     postText: String,
     modifier: Modifier = Modifier,
-    repository: TranslateRepository = TranslateClient.getClient(),
     buttonContent: @Composable (
         isTranslated: Boolean,
         isLoading: Boolean,
@@ -325,12 +318,14 @@ fun SeeTranslation(
 ) {
 
     val controller = remember {
-        TranslateController(repository)
+        TranslateController(TranslateClient.getClient())
     }
 
-    LaunchedEffect(postText) {
-        controller.setText(postText)
+    DisposableEffect(Unit) {
+        onDispose { controller.release() }
     }
+
+    LaunchedEffect(postText) { controller.setText(postText) }
 
     val text by controller.text.collectAsStateWithLifecycle()
     val isTranslated by controller.isTranslated.collectAsStateWithLifecycle()
