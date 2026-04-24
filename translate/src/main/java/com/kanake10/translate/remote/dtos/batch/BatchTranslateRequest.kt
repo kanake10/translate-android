@@ -1,6 +1,6 @@
 package com.kanake10.translate.remote.dtos.batch
 
-data class BatchTranslateRequest(
+internal data class BatchTranslateRequest(
     val texts: List<String>,
     val source: String,
     val target: String
@@ -13,7 +13,7 @@ internal data class BatchTranslateResponse(
     val failed: Int
 )
 
-data class BatchTranslationDto(
+internal data class BatchTranslationDto(
     val text: String,
     val translation: String,
     val source: String,
