@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class TranslateController internal constructor(
+internal class TranslateController internal constructor(
     private val repository: TranslateRepository,
 ) {
     private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())

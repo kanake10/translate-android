@@ -17,7 +17,6 @@ import com.kanake10.translate_ui.vm.TranslationViewModel
 
 @Composable
 fun TranslationScreen(
-    viewModel: TranslationViewModel = viewModel(factory = TranslationViewModel.Factory),
     modifier: Modifier = Modifier,
     translateFrom: String? = null,
     translateTo: String? = null,
@@ -52,6 +51,9 @@ fun TranslationScreen(
         TranslateErrorContent(error)
     },
 ) {
+    val viewModel: TranslationViewModel =
+        viewModel(factory = TranslationViewModel.Factory)
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.languages) {

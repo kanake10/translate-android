@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.compose)
+    id("me.tylerbwong.gradle.metalava") version "0.5.0"
 }
 
 android {
@@ -33,6 +34,11 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+}
+
+metalava {
+    filename = "api/$name-api.txt"
+    apiCompatAnnotations = listOf("androidx.compose.runtime.Composable")
 }
 
 dependencies {

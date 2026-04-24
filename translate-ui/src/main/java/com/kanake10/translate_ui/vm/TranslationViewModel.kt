@@ -23,7 +23,7 @@ data class TranslationUiState(
     val error: String? = null,
 )
 
-class TranslationViewModel(
+internal class TranslationViewModel(
     private val repository: TranslateRepository,
 ) : ViewModel() {
 
@@ -95,5 +95,3 @@ class TranslationViewModel(
         }
     }
 }
-
-

@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.library)
+    id("me.tylerbwong.gradle.metalava") version "0.5.0"
 }
 
 android {
@@ -8,6 +9,10 @@ android {
         version = release(36)
     }
 
+}
+
+metalava {
+    filename = "api/$name-api.txt"
 }
 
 dependencies {

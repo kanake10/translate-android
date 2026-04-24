@@ -1,0 +1,181 @@
+// Signature format: 4.0
+package com.kanake10.translate {
+
+  public final class TranslateClient {
+    method public com.kanake10.translate.repo.TranslateRepository getClient();
+    method public void init(com.kanake10.translate.TranslateClient.Builder builder);
+    field public static final com.kanake10.translate.TranslateClient INSTANCE;
+  }
+
+  public static final class TranslateClient.Builder {
+    ctor public TranslateClient.Builder();
+    method public com.kanake10.translate.TranslateClient.Builder apiKey(String key);
+    method public com.kanake10.translate.TranslateClient.Builder baseUrl(String url);
+    method public com.kanake10.translate.TranslateClient.Builder okHttpClient(okhttp3.OkHttpClient client);
+    method public com.kanake10.translate.TranslateClient.Builder timeoutSeconds(long seconds);
+  }
+
+}
+
+package com.kanake10.translate.domain.models {
+
+  public final class BatchTranslation {
+    ctor public BatchTranslation(String text, String translatedText, String source, String target, boolean success);
+    method public String component1();
+    method public String component2();
+    method public String component3();
+    method public String component4();
+    method public boolean component5();
+    method public com.kanake10.translate.domain.models.BatchTranslation copy(optional String text, optional String translatedText, optional String source, optional String target, optional boolean success);
+    method @InaccessibleFromKotlin public String getSource();
+    method @InaccessibleFromKotlin public boolean getSuccess();
+    method @InaccessibleFromKotlin public String getTarget();
+    method @InaccessibleFromKotlin public String getText();
+    method @InaccessibleFromKotlin public String getTranslatedText();
+    property public String source;
+    property public boolean success;
+    property public String target;
+    property public String text;
+    property public String translatedText;
+  }
+
+  public final class HealthStatus {
+    ctor public HealthStatus(boolean isHealthy, String service, String version);
+    method public boolean component1();
+    method public String component2();
+    method public String component3();
+    method public com.kanake10.translate.domain.models.HealthStatus copy(optional boolean isHealthy, optional String service, optional String version);
+    method @InaccessibleFromKotlin public String getService();
+    method @InaccessibleFromKotlin public String getVersion();
+    method @InaccessibleFromKotlin public boolean isHealthy();
+    property public boolean isHealthy;
+    property public String service;
+    property public String version;
+  }
+
+  public final class Language {
+    ctor public Language(String name, String code);
+    method public String component1();
+    method public String component2();
+    method public com.kanake10.translate.domain.models.Language copy(optional String name, optional String code);
+    method @InaccessibleFromKotlin public String getCode();
+    method @InaccessibleFromKotlin public String getName();
+    property public String code;
+    property public String name;
+  }
+
+  public final class Translation {
+    ctor public Translation(String text, String translatedText, String source, String target);
+    method public String component1();
+    method public String component2();
+    method public String component3();
+    method public String component4();
+    method public com.kanake10.translate.domain.models.Translation copy(optional String text, optional String translatedText, optional String source, optional String target);
+    method @InaccessibleFromKotlin public String getSource();
+    method @InaccessibleFromKotlin public String getTarget();
+    method @InaccessibleFromKotlin public String getText();
+    method @InaccessibleFromKotlin public String getTranslatedText();
+    property public String source;
+    property public String target;
+    property public String text;
+    property public String translatedText;
+  }
+
+}
+
+package com.kanake10.translate.repo {
+
+  public interface TranslateRepository {
+    method public suspend Object? batchTranslate(java.util.List<java.lang.String> texts, optional String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<? extends java.util.List<com.kanake10.translate.domain.models.BatchTranslation>>>);
+    method public suspend Object? checkHealth(kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.HealthStatus>>);
+    method public suspend Object? getSupportedLanguages(kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<? extends java.util.List<com.kanake10.translate.domain.models.Language>>>);
+    method public suspend Object? translate(String text, optional String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.Translation>>);
+  }
+
+}
+
+package com.kanake10.translate.util {
+
+  public abstract sealed exhaustive class TranslateError {
+    method public final String toMessage();
+  }
+
+  public static final class TranslateError.BadRequest extends com.kanake10.translate.util.TranslateError {
+    ctor public TranslateError.BadRequest(String detail);
+    method public String component1();
+    method public com.kanake10.translate.util.TranslateError.BadRequest copy(optional String detail);
+    method @InaccessibleFromKotlin public String getDetail();
+    property public String detail;
+  }
+
+  public static final class TranslateError.InsufficientCredits extends com.kanake10.translate.util.TranslateError {
+    ctor public TranslateError.InsufficientCredits(int remaining, int required);
+    method public int component1();
+    method public int component2();
+    method public com.kanake10.translate.util.TranslateError.InsufficientCredits copy(optional int remaining, optional int required);
+    method @InaccessibleFromKotlin public int getRemaining();
+    method @InaccessibleFromKotlin public int getRequired();
+    property public int remaining;
+    property public int required;
+  }
+
+  public static final class TranslateError.InternalServerError extends com.kanake10.translate.util.TranslateError {
+    field public static final com.kanake10.translate.util.TranslateError.InternalServerError INSTANCE;
+  }
+
+  public static final class TranslateError.InvalidApiKey extends com.kanake10.translate.util.TranslateError {
+    field public static final com.kanake10.translate.util.TranslateError.InvalidApiKey INSTANCE;
+  }
+
+  public static final class TranslateError.MissingApiKey extends com.kanake10.translate.util.TranslateError {
+    field public static final com.kanake10.translate.util.TranslateError.MissingApiKey INSTANCE;
+  }
+
+  public static final class TranslateError.NetworkError extends com.kanake10.translate.util.TranslateError {
+    field public static final com.kanake10.translate.util.TranslateError.NetworkError INSTANCE;
+  }
+
+  public static final class TranslateError.NotFound extends com.kanake10.translate.util.TranslateError {
+    field public static final com.kanake10.translate.util.TranslateError.NotFound INSTANCE;
+  }
+
+  public static final class TranslateError.RateLimitExceeded extends com.kanake10.translate.util.TranslateError {
+    field public static final com.kanake10.translate.util.TranslateError.RateLimitExceeded INSTANCE;
+  }
+
+  public static final class TranslateError.ServiceUnavailable extends com.kanake10.translate.util.TranslateError {
+    field public static final com.kanake10.translate.util.TranslateError.ServiceUnavailable INSTANCE;
+  }
+
+  public static final class TranslateError.Unknown extends com.kanake10.translate.util.TranslateError {
+    ctor public TranslateError.Unknown(int code, String detail);
+    method public int component1();
+    method public String component2();
+    method public com.kanake10.translate.util.TranslateError.Unknown copy(optional int code, optional String detail);
+    method @InaccessibleFromKotlin public int getCode();
+    method @InaccessibleFromKotlin public String getDetail();
+    property public int code;
+    property public String detail;
+  }
+
+  public abstract sealed exhaustive class TranslateResult<T> {
+  }
+
+  public static final class TranslateResult.Error extends com.kanake10.translate.util.TranslateResult {
+    ctor public TranslateResult.Error(com.kanake10.translate.util.TranslateError error);
+    method public com.kanake10.translate.util.TranslateError component1();
+    method public com.kanake10.translate.util.TranslateResult.Error copy(optional com.kanake10.translate.util.TranslateError error);
+    method @InaccessibleFromKotlin public com.kanake10.translate.util.TranslateError getError();
+    property public com.kanake10.translate.util.TranslateError error;
+  }
+
+  public static final class TranslateResult.Success<T> extends com.kanake10.translate.util.TranslateResult<T> {
+    ctor public TranslateResult.Success(T data);
+    method public T component1();
+    method public com.kanake10.translate.util.TranslateResult.Success<T> copy(optional T data);
+    method @InaccessibleFromKotlin public T getData();
+    property public T data;
+  }
+
+}
+
