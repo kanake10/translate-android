@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Locale
 
 internal class TranslateController internal constructor(
     private val repository: TranslateRepository,
@@ -28,6 +29,9 @@ internal class TranslateController internal constructor(
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> = _error
 
+    private val _phoneLanguage = MutableStateFlow(Locale.getDefault().language)
+    val phoneLanguage: StateFlow<String> = _phoneLanguage
+
     private var originalText: String = ""
 
     fun setText(value: String) {
@@ -38,7 +42,7 @@ internal class TranslateController internal constructor(
         }
     }
 
-    fun toggleTranslate(target: String = "en") {
+    fun toggleTranslate() {
         if (_isTranslated.value) {
             _text.value = originalText
             _isTranslated.value = false
@@ -54,7 +58,7 @@ internal class TranslateController internal constructor(
             when (val result = repository.translate(
                 text = _text.value,
                 source = "auto",
-                target = target,
+                target = _phoneLanguage.value,
             )) {
                 is TranslateResult.Success -> {
                     originalText = _text.value

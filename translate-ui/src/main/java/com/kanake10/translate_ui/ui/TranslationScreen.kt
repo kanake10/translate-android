@@ -283,23 +283,10 @@ internal fun TranslateErrorContent(
 }
 
 @Composable
-fun SeeTranslation(
+fun Translate(
     postText: String,
     modifier: Modifier = Modifier,
-    textContent: @Composable (text: String) -> Unit = { text ->
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(100.dp)
-                .border(1.dp, MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp))
-                .padding(12.dp)
-        ) {
-            Text(text = text)
-        }
-    },
-    errorContent: @Composable (error: String) -> Unit = { error ->
-        Text(text = error, color = MaterialTheme.colorScheme.error)
-    },
+    onTranslated: (translatedText: String) -> Unit = {},
     buttonContent: @Composable (
         isTranslated: Boolean,
         isLoading: Boolean,
@@ -326,14 +313,14 @@ fun SeeTranslation(
     val text by controller.text.collectAsStateWithLifecycle()
     val isTranslated by controller.isTranslated.collectAsStateWithLifecycle()
     val isLoading by controller.isLoading.collectAsStateWithLifecycle()
-    val error by controller.error.collectAsStateWithLifecycle()
 
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        textContent(text)
+    LaunchedEffect(text, isTranslated) {
+        if (isTranslated) {
+            onTranslated(text)
+        }
+    }
+
+    Box(modifier = modifier) {
         buttonContent(isTranslated, isLoading) { controller.toggleTranslate() }
-        error?.let { errorContent(it) }
     }
 }
