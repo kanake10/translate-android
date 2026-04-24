@@ -19,8 +19,7 @@ object TranslateClient {
 
     fun getClient(): TranslateRepository =
         repository ?: error(
-            "TranslateClient is not initialized. " +
-                    "Call TranslateClient.init() in your Application.onCreate() before use."
+            "TranslateClient is not initialized. "
         )
 
     class Builder {
