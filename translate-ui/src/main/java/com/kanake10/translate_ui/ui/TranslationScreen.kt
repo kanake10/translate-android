@@ -140,7 +140,6 @@ internal fun TranslateLanguageSelector(
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = sourceExpanded)
                 },
                 modifier = Modifier
-                    .menuAnchor()
                     .fillMaxWidth()
             )
 
@@ -177,7 +176,6 @@ internal fun TranslateLanguageSelector(
                     ExposedDropdownMenuDefaults.TrailingIcon(expanded = targetExpanded)
                 },
                 modifier = Modifier
-                    .menuAnchor()
                     .fillMaxWidth()
             )
 
