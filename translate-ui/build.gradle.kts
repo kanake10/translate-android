@@ -51,6 +51,5 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material3)
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
-    implementation(project(":translate"))
-    implementation(project(":translate-voice"))
+    api(project(":translate"))
 }
