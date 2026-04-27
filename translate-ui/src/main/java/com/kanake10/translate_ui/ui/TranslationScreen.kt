@@ -341,13 +341,19 @@ fun Translate(
 
     val state by controller.state.collectAsStateWithLifecycle()
 
+    val isInitialized = remember { mutableStateOf(false) }
+
     LaunchedEffect(postText) {
         controller.setText(postText)
+        isInitialized.value = false
     }
+
     LaunchedEffect(state.text, state.isTranslated) {
-        if (state.isTranslated) {
-            onTranslated(state.text)
+        if (!isInitialized.value) {
+            isInitialized.value = true
+            return@LaunchedEffect
         }
+        onTranslated(state.text)
     }
 
     Box(modifier = modifier) {

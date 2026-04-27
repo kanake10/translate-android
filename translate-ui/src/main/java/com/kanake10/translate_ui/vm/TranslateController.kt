@@ -15,7 +15,8 @@ data class TranslateBtnState(
     val isTranslated: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null,
-    val phoneLanguage: String = Locale.getDefault().language
+    val phoneLanguage: String = Locale.getDefault().language,
+    val originalText: String = "",
 )
 
 internal class TranslateController(
@@ -31,11 +32,11 @@ internal class TranslateController(
         _state.update {
             it.copy(
                 text = value,
+                originalText = value,
                 isTranslated = false,
                 error = null
             )
         }
-        originalText = ""
     }
 
     fun toggleTranslate() {
@@ -44,7 +45,7 @@ internal class TranslateController(
         if (current.isTranslated) {
             _state.update {
                 it.copy(
-                    text = originalText,
+                    text = current.originalText,
                     isTranslated = false
                 )
             }
