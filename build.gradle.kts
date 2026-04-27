@@ -5,4 +5,5 @@ plugins {
     alias(libs.plugins.android.library) apply false
     id("com.google.devtools.ksp") version "2.3.4" apply false
     alias(libs.plugins.ktfmt) apply false
+    id("com.vanniktech.maven.publish") version "0.36.0" apply false
 }
