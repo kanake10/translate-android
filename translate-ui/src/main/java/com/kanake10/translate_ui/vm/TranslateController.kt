@@ -3,77 +3,89 @@ package com.kanake10.translate_ui.vm
 import com.kanake10.translate.repo.TranslateRepository
 import com.kanake10.translate.util.TranslateResult
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Locale
 
-internal class TranslateController internal constructor(
+
+data class TranslateBtnState(
+    val text: String = "",
+    val isTranslated: Boolean = false,
+    val isLoading: Boolean = false,
+    val error: String? = null,
+    val phoneLanguage: String = Locale.getDefault().language
+)
+
+internal class TranslateController(
     private val repository: TranslateRepository,
+    private val scope: CoroutineScope
 ) {
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
-
-    private val _text = MutableStateFlow("")
-    val text: StateFlow<String> = _text
-
-    private val _isTranslated = MutableStateFlow(false)
-    val isTranslated: StateFlow<Boolean> = _isTranslated
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    private val _error = MutableStateFlow<String?>(null)
-    val error: StateFlow<String?> = _error
-
-    private val _phoneLanguage = MutableStateFlow(Locale.getDefault().language)
-    val phoneLanguage: StateFlow<String> = _phoneLanguage
+    private val _state = MutableStateFlow(TranslateBtnState())
+    val state: StateFlow<TranslateBtnState> = _state
 
     private var originalText: String = ""
 
     fun setText(value: String) {
-        _text.value = value
-        if (_isTranslated.value) {
-            _isTranslated.value = false
-            originalText = ""
+        _state.update {
+            it.copy(
+                text = value,
+                isTranslated = false,
+                error = null
+            )
         }
+        originalText = ""
     }
 
     fun toggleTranslate() {
-        if (_isTranslated.value) {
-            _text.value = originalText
-            _isTranslated.value = false
+        val current = _state.value
+
+        if (current.isTranslated) {
+            _state.update {
+                it.copy(
+                    text = originalText,
+                    isTranslated = false
+                )
+            }
             return
         }
 
-        if (_text.value.isBlank()) return
+        if (current.text.isBlank() || current.isLoading) return
 
-        _isLoading.value = true
-        _error.value = null
+        _state.update {
+            it.copy(
+                isLoading = true,
+                error = null
+            )
+        }
 
         scope.launch {
             when (val result = repository.translate(
-                text = _text.value,
+                text = current.text,
                 source = "auto",
-                target = _phoneLanguage.value,
+                target = current.phoneLanguage,
             )) {
                 is TranslateResult.Success -> {
-                    originalText = _text.value
-                    _text.value = result.data.translatedText
-                    _isTranslated.value = true
+                    originalText = current.text
+                    _state.update {
+                        it.copy(
+                            text = result.data.translatedText,
+                            isTranslated = true,
+                            isLoading = false
+                        )
+                    }
                 }
+
                 is TranslateResult.Error -> {
-                    _error.value = result.error.toMessage()
+                    _state.update {
+                        it.copy(
+                            error = result.error.toMessage(),
+                            isLoading = false
+                        )
+                    }
                 }
             }
-            _isLoading.value = false
         }
-    }
-
-    fun release() {
-        scope.cancel()
     }
 }

@@ -1,11 +1,35 @@
 package com.kanake10.translate_ui.ui
 
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenuItem
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -284,7 +308,7 @@ internal fun TranslateErrorContent(
 fun Translate(
     postText: String,
     modifier: Modifier = Modifier,
-    onTranslated: (translatedText: String) -> Unit = {},
+    onTranslated: (String) -> Unit = {},
     buttonContent: @Composable (
         isTranslated: Boolean,
         isLoading: Boolean,
@@ -296,29 +320,42 @@ fun Translate(
             modifier = Modifier.fillMaxWidth(),
         ) {
             if (isLoading) {
-                CircularProgressIndicator(modifier = Modifier.size(18.dp), strokeWidth = 2.dp)
+                CircularProgressIndicator(
+                    modifier = Modifier.size(18.dp),
+                    strokeWidth = 2.dp
+                )
             } else {
                 Text(if (isTranslated) "Undo" else "Translate")
             }
         }
     },
 ) {
-    val controller = remember { TranslateController(TranslateClient.getClient()) }
+    val scope = rememberCoroutineScope()
 
-    DisposableEffect(Unit) { onDispose { controller.release() } }
-    LaunchedEffect(postText) { controller.setText(postText) }
+    val controller = remember {
+        TranslateController(
+            repository = TranslateClient.getClient(),
+            scope = scope
+        )
+    }
 
-    val text by controller.text.collectAsStateWithLifecycle()
-    val isTranslated by controller.isTranslated.collectAsStateWithLifecycle()
-    val isLoading by controller.isLoading.collectAsStateWithLifecycle()
+    val state by controller.state.collectAsStateWithLifecycle()
 
-    LaunchedEffect(text, isTranslated) {
-        if (isTranslated) {
-            onTranslated(text)
+    LaunchedEffect(postText) {
+        controller.setText(postText)
+    }
+    LaunchedEffect(state.text, state.isTranslated) {
+        if (state.isTranslated) {
+            onTranslated(state.text)
         }
     }
 
     Box(modifier = modifier) {
-        buttonContent(isTranslated, isLoading) { controller.toggleTranslate() }
+        buttonContent(
+            state.isTranslated,
+            state.isLoading
+        ) {
+            controller.toggleTranslate()
+        }
     }
 }
