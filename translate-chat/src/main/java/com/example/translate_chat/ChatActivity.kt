@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.translate_chat.ui.theme.TranslateTheme
 import com.kanake10.translate.domain.models.Language
-import com.kanake10.translate_ui.vm.TranslationViewModel
 
 class ChatActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

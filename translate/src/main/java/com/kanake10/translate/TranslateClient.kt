@@ -11,24 +11,50 @@ import java.util.concurrent.TimeUnit
 
 object TranslateClient {
 
-    @Volatile private var repository: TranslateRepository? = null
+    @Volatile
+    private var repository: TranslateRepository? = null
 
-    fun init(builder: Builder) {
-        repository = builder.buildRepository()
+    fun initialize(configuration: Configuration) {
+        val client = configuration.okHttpClient
+            ?.newBuilder()
+            ?.addInterceptor(TranslateInterceptors(configuration.apiKey))
+            ?.build()
+            ?: OkHttpClient.Builder()
+                .addInterceptor(TranslateInterceptors(configuration.apiKey))
+                .connectTimeout(configuration.timeoutSeconds, TimeUnit.SECONDS)
+                .readTimeout(configuration.timeoutSeconds, TimeUnit.SECONDS)
+                .writeTimeout(configuration.timeoutSeconds, TimeUnit.SECONDS)
+                .build()
+
+        val retrofit = Retrofit.Builder()
+            .baseUrl(configuration.baseUrl)
+            .client(client)
+            .addConverterFactory(MoshiConverterFactory.create())
+            .build()
+
+        repository = TranslateRepositoryImpl(
+            retrofit.create(TranslateApi::class.java)
+        )
     }
 
-    fun getClient(): TranslateRepository =
-        repository ?: error(
-            "TranslateClient is not initialized. "
-        )
+    fun getClient(): TranslateRepository {
+        return requireNotNull(repository) {
+            "TranslateClient is not initialized. Call TranslateClient.initialize() in Application class."
+        }
+    }
+}
 
-    class Builder {
-        private var apiKey: String? = null
+class Configuration private constructor(
+    val apiKey: String,
+    val baseUrl: String,
+    val okHttpClient: OkHttpClient?,
+    val timeoutSeconds: Long
+) {
+    class Builder(private val apiKey: String) {
+
         private var baseUrl: String = "https://api.translateplus.io/"
         private var okHttpClient: OkHttpClient? = null
         private var timeoutSeconds: Long = 30L
-
-        fun apiKey(key: String) = apply { apiKey = key }
 
         fun baseUrl(url: String) = apply { baseUrl = url }
 
@@ -36,28 +62,13 @@ object TranslateClient {
 
         fun timeoutSeconds(seconds: Long) = apply { timeoutSeconds = seconds }
 
-        internal fun buildRepository(): TranslateRepository {
-            val key = requireNotNull(apiKey) {
-                "apiKey must be provided. Call Builder.apiKey(\"your-key\")"
-            }
-            val client = okHttpClient
-                ?.newBuilder()
-                ?.addInterceptor(TranslateInterceptors(key))
-                ?.build()
-                ?: OkHttpClient.Builder()
-                    .addInterceptor(TranslateInterceptors(key))
-                    .connectTimeout(timeoutSeconds, TimeUnit.SECONDS)
-                    .readTimeout(timeoutSeconds, TimeUnit.SECONDS)
-                    .writeTimeout(timeoutSeconds, TimeUnit.SECONDS)
-                    .build()
-
-            val retrofit = Retrofit.Builder()
-                .baseUrl(baseUrl)
-                .client(client)
-                .addConverterFactory(MoshiConverterFactory.create())
-                .build()
-
-            return TranslateRepositoryImpl(retrofit.create(TranslateApi::class.java))
+        fun build(): Configuration {
+            return Configuration(
+                apiKey = apiKey,
+                baseUrl = baseUrl,
+                okHttpClient = okHttpClient,
+                timeoutSeconds = timeoutSeconds
+            )
         }
     }
 }
