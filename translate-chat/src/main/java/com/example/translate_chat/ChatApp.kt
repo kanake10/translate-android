@@ -12,7 +12,6 @@ class ChatApp : Application() {
         val translateConfiguration = TranslateConfiguration.Builder(
             apiKey = ""
         )
-            .baseUrl("https://api.translateplus.io/")
             .timeoutSeconds(30)
             .build()
 

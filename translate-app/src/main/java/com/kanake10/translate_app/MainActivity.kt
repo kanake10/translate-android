@@ -29,7 +29,6 @@ class MainActivity : ComponentActivity() {
         val translateConfiguration = TranslateConfiguration.Builder(
             apiKey = ""
         )
-            .baseUrl("https://api.translateplus.io/")
             .timeoutSeconds(30)
             .build()
 
