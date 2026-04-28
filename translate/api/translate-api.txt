@@ -2,17 +2,34 @@
 package com.kanake10.translate {
 
   public final class TranslateClient {
-    method public com.kanake10.translate.repo.TranslateRepository getClient();
-    method public void init(com.kanake10.translate.TranslateClient.Builder builder);
+    method public suspend Object? batchTranslate(java.util.List<java.lang.String> texts, optional String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<? extends java.util.List<com.kanake10.translate.domain.models.BatchTranslation>>>);
+    method public suspend Object? checkHealth(kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.HealthStatus>>);
+    method public suspend Object? getSupportedLanguages(kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<? extends java.util.List<com.kanake10.translate.domain.models.Language>>>);
+    method public void initialize(com.kanake10.translate.TranslateConfiguration translateConfiguration);
+    method public suspend Object? translate(String text, optional String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.Translation>>);
+    method public suspend Object? translateEmail(com.kanake10.translate.domain.models.email.EmailRequest request, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.email.EmailResult>>);
+    method public suspend Object? translateHtml(com.kanake10.translate.domain.models.html.HtmlRequest request, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.html.HtmlResult>>);
+    method public suspend Object? translateSubtitles(com.kanake10.translate.domain.models.subtitles.SubtitleRequest request, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.subtitles.SubtitleResult>>);
     field public static final com.kanake10.translate.TranslateClient INSTANCE;
   }
 
-  public static final class TranslateClient.Builder {
-    ctor public TranslateClient.Builder();
-    method public com.kanake10.translate.TranslateClient.Builder apiKey(String key);
-    method public com.kanake10.translate.TranslateClient.Builder baseUrl(String url);
-    method public com.kanake10.translate.TranslateClient.Builder okHttpClient(okhttp3.OkHttpClient client);
-    method public com.kanake10.translate.TranslateClient.Builder timeoutSeconds(long seconds);
+  public final class TranslateConfiguration {
+    method @InaccessibleFromKotlin public String getApiKey();
+    method @InaccessibleFromKotlin public String getBaseUrl();
+    method @InaccessibleFromKotlin public okhttp3.OkHttpClient? getOkHttpClient();
+    method @InaccessibleFromKotlin public long getTimeoutSeconds();
+    property public String apiKey;
+    property public String baseUrl;
+    property public okhttp3.OkHttpClient? okHttpClient;
+    property public long timeoutSeconds;
+  }
+
+  public static final class TranslateConfiguration.Builder {
+    ctor public TranslateConfiguration.Builder(String apiKey);
+    method public com.kanake10.translate.TranslateConfiguration.Builder baseUrl(String url);
+    method public com.kanake10.translate.TranslateConfiguration build();
+    method public com.kanake10.translate.TranslateConfiguration.Builder okHttpClient(okhttp3.OkHttpClient client);
+    method public com.kanake10.translate.TranslateConfiguration.Builder timeoutSeconds(long seconds);
   }
 
 }
@@ -83,6 +100,96 @@ package com.kanake10.translate.domain.models {
 
 }
 
+package com.kanake10.translate.domain.models.email {
+
+  public final class EmailRequest {
+    ctor public EmailRequest(String subject, String email_body, String source, String target);
+    method public String component1();
+    method public String component2();
+    method public String component3();
+    method public String component4();
+    method public com.kanake10.translate.domain.models.email.EmailRequest copy(optional String subject, optional String email_body, optional String source, optional String target);
+    method @InaccessibleFromKotlin public String getEmail_body();
+    method @InaccessibleFromKotlin public String getSource();
+    method @InaccessibleFromKotlin public String getSubject();
+    method @InaccessibleFromKotlin public String getTarget();
+    property public String email_body;
+    property public String source;
+    property public String subject;
+    property public String target;
+  }
+
+  public final class EmailResult {
+    ctor public EmailResult(String subject, String html_body);
+    method public String component1();
+    method public String component2();
+    method public com.kanake10.translate.domain.models.email.EmailResult copy(optional String subject, optional String html_body);
+    method @InaccessibleFromKotlin public String getHtml_body();
+    method @InaccessibleFromKotlin public String getSubject();
+    property public String html_body;
+    property public String subject;
+  }
+
+}
+
+package com.kanake10.translate.domain.models.html {
+
+  public final class HtmlRequest {
+    ctor public HtmlRequest(String html, String source, String target);
+    method public String component1();
+    method public String component2();
+    method public String component3();
+    method public com.kanake10.translate.domain.models.html.HtmlRequest copy(optional String html, optional String source, optional String target);
+    method @InaccessibleFromKotlin public String getHtml();
+    method @InaccessibleFromKotlin public String getSource();
+    method @InaccessibleFromKotlin public String getTarget();
+    property public String html;
+    property public String source;
+    property public String target;
+  }
+
+  public final class HtmlResult {
+    ctor public HtmlResult(String html);
+    method public String component1();
+    method public com.kanake10.translate.domain.models.html.HtmlResult copy(optional String html);
+    method @InaccessibleFromKotlin public String getHtml();
+    property public String html;
+  }
+
+}
+
+package com.kanake10.translate.domain.models.subtitles {
+
+  public final class SubtitleRequest {
+    ctor public SubtitleRequest(String format, String content, String source, String target);
+    method public String component1();
+    method public String component2();
+    method public String component3();
+    method public String component4();
+    method public com.kanake10.translate.domain.models.subtitles.SubtitleRequest copy(optional String format, optional String content, optional String source, optional String target);
+    method @InaccessibleFromKotlin public String getContent();
+    method @InaccessibleFromKotlin public String getFormat();
+    method @InaccessibleFromKotlin public String getSource();
+    method @InaccessibleFromKotlin public String getTarget();
+    property public String content;
+    property public String format;
+    property public String source;
+    property public String target;
+  }
+
+  public final class SubtitleResult {
+    ctor public SubtitleResult(String format, String content);
+    method public String component1();
+    method public String component2();
+    method public com.kanake10.translate.domain.models.subtitles.SubtitleResult copy(optional String format, optional String content);
+    method @InaccessibleFromKotlin public String getContent();
+    method @InaccessibleFromKotlin public String getFormat();
+    property public String content;
+    property public String format;
+  }
+
+}
+
 package com.kanake10.translate.repo {
 
   public interface TranslateRepository {
@@ -90,6 +197,9 @@ package com.kanake10.translate.repo {
     method public suspend Object? checkHealth(kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.HealthStatus>>);
     method public suspend Object? getSupportedLanguages(kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<? extends java.util.List<com.kanake10.translate.domain.models.Language>>>);
     method public suspend Object? translate(String text, optional String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.Translation>>);
+    method public suspend Object? translateEmail(com.kanake10.translate.domain.models.email.EmailRequest request, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.email.EmailResult>>);
+    method public suspend Object? translateHtml(com.kanake10.translate.domain.models.html.HtmlRequest request, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.html.HtmlResult>>);
+    method public suspend Object? translateSubtitles(com.kanake10.translate.domain.models.subtitles.SubtitleRequest request, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.subtitles.SubtitleResult>>);
   }
 
 }

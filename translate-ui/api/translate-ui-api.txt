@@ -2,13 +2,37 @@
 package com.kanake10.translate_ui.ui {
 
   public final class TranslationScreenKt {
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void SeeTranslation(String postText, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> textContent, optional kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> errorContent, optional kotlin.jvm.functions.Function3<java.lang.Boolean,java.lang.Boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> buttonContent);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void Translate(String postText, optional androidx.compose.ui.Modifier modifier, optional kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> onTranslated, optional kotlin.jvm.functions.Function3<java.lang.Boolean,java.lang.Boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> buttonContent);
     method @KotlinOnly @androidx.compose.runtime.Composable public static void TranslationScreen(optional androidx.compose.ui.Modifier modifier, optional String? translateFrom, optional String? translateTo, optional kotlin.jvm.functions.Function0<kotlin.Unit>? headerContent, optional kotlin.jvm.functions.Function5<java.util.List<com.kanake10.translate.domain.models.Language>,com.kanake10.translate.domain.models.Language?,com.kanake10.translate.domain.models.Language?,kotlin.jvm.functions.Function1<com.kanake10.translate.domain.models.Language,kotlin.Unit>,kotlin.jvm.functions.Function1<com.kanake10.translate.domain.models.Language,kotlin.Unit>,kotlin.Unit>? translateLanguageSelector, optional kotlin.jvm.functions.Function2<java.lang.String,kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit>,kotlin.Unit> translateInputField, optional kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> translationContent, optional kotlin.jvm.functions.Function2<java.lang.Boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> translateButton, optional kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> translateErrorContent);
   }
 
 }
 
 package com.kanake10.translate_ui.vm {
+
+  public final class TranslateBtnState {
+    ctor public TranslateBtnState();
+    ctor public TranslateBtnState(optional String text, optional boolean isTranslated, optional boolean isLoading, optional String? error, optional String phoneLanguage, optional String originalText);
+    method public String component1();
+    method public boolean component2();
+    method public boolean component3();
+    method public String? component4();
+    method public String component5();
+    method public String component6();
+    method public com.kanake10.translate_ui.vm.TranslateBtnState copy(optional String text, optional boolean isTranslated, optional boolean isLoading, optional String? error, optional String phoneLanguage, optional String originalText);
+    method @InaccessibleFromKotlin public String? getError();
+    method @InaccessibleFromKotlin public String getOriginalText();
+    method @InaccessibleFromKotlin public String getPhoneLanguage();
+    method @InaccessibleFromKotlin public String getText();
+    method @InaccessibleFromKotlin public boolean isLoading();
+    method @InaccessibleFromKotlin public boolean isTranslated();
+    property public String? error;
+    property public boolean isLoading;
+    property public boolean isTranslated;
+    property public String originalText;
+    property public String phoneLanguage;
+    property public String text;
+  }
 
   public final class TranslationUiState {
     ctor public TranslationUiState();
