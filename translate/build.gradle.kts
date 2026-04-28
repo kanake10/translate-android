@@ -2,7 +2,7 @@ plugins {
   alias(libs.plugins.android.library)
   alias(libs.plugins.metalava)
   alias(libs.plugins.ktfmt)
-    id("com.vanniktech.maven.publish")
+  alias(libs.plugins.publish)
 }
 
 android {
