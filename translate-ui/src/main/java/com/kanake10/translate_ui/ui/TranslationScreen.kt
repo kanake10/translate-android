@@ -34,7 +34,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kanake10.translate.TranslateClient
 import com.kanake10.translate.domain.models.Language
 import com.kanake10.translate_ui.vm.TranslateController
 import com.kanake10.translate_ui.vm.TranslationViewModel
@@ -75,17 +74,22 @@ fun TranslationScreen(
         TranslateErrorContent(error)
     },
 ) {
-    val viewModel: TranslationViewModel =
-        viewModel(factory = TranslationViewModel.Factory)
+
+    val viewModel: TranslationViewModel = viewModel()
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(uiState.languages) {
         translateFrom?.let { code ->
-            uiState.languages.find { it.code == code }?.let { viewModel.selectSource(it) }
+            uiState.languages.find { it.code == code }?.let {
+                viewModel.selectSource(it)
+            }
         }
+
         translateTo?.let { code ->
-            uiState.languages.find { it.code == code }?.let { viewModel.selectTarget(it) }
+            uiState.languages.find { it.code == code }?.let {
+                viewModel.selectTarget(it)
+            }
         }
     }
 
@@ -94,6 +98,7 @@ fun TranslationScreen(
             .fillMaxSize()
             .padding(16.dp)
     ) {
+
         headerContent?.let {
             it()
             Spacer(modifier = Modifier.height(12.dp))
@@ -334,7 +339,6 @@ fun Translate(
 
     val controller = remember {
         TranslateController(
-            repository = TranslateClient.getClient(),
             scope = scope
         )
     }

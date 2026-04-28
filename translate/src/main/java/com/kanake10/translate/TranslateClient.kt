@@ -1,9 +1,14 @@
 package com.kanake10.translate
 
+import com.kanake10.translate.domain.models.BatchTranslation
+import com.kanake10.translate.domain.models.HealthStatus
+import com.kanake10.translate.domain.models.Language
+import com.kanake10.translate.domain.models.Translation
 import com.kanake10.translate.remote.TranslateInterceptors
 import com.kanake10.translate.remote.api.TranslateApi
 import com.kanake10.translate.repo.TranslateRepository
 import com.kanake10.translate.repo.TranslateRepositoryImpl
+import com.kanake10.translate.util.TranslateResult
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
@@ -14,20 +19,49 @@ object TranslateClient {
     @Volatile
     private var repository: TranslateRepository? = null
 
-    fun initialize(configuration: Configuration) {
-        val client = configuration.okHttpClient
+    private fun getRepository(): TranslateRepository {
+        return requireNotNull(repository) {
+            "TranslateClient is not initialized. Call TranslateClient.initialize() in Application class."
+        }
+    }
+
+    suspend fun translate(
+        text: String,
+        source: String = "auto",
+        target: String
+    ): TranslateResult<Translation> {
+        return getRepository().translate(text, source, target)
+    }
+
+    suspend fun batchTranslate(
+        texts: List<String>,
+        source: String = "auto",
+        target: String
+    ): TranslateResult<List<BatchTranslation>> {
+        return getRepository().batchTranslate(texts, source, target)
+    }
+
+    suspend fun checkHealth(): TranslateResult<HealthStatus> {
+        return getRepository().checkHealth()
+    }
+
+    suspend fun getSupportedLanguages(): TranslateResult<List<Language>> {
+        return getRepository().getSupportedLanguages()
+    }
+    fun initialize(translateConfiguration: TranslateConfiguration) {
+        val client = translateConfiguration.okHttpClient
             ?.newBuilder()
-            ?.addInterceptor(TranslateInterceptors(configuration.apiKey))
+            ?.addInterceptor(TranslateInterceptors(translateConfiguration.apiKey))
             ?.build()
             ?: OkHttpClient.Builder()
-                .addInterceptor(TranslateInterceptors(configuration.apiKey))
-                .connectTimeout(configuration.timeoutSeconds, TimeUnit.SECONDS)
-                .readTimeout(configuration.timeoutSeconds, TimeUnit.SECONDS)
-                .writeTimeout(configuration.timeoutSeconds, TimeUnit.SECONDS)
+                .addInterceptor(TranslateInterceptors(translateConfiguration.apiKey))
+                .connectTimeout(translateConfiguration.timeoutSeconds, TimeUnit.SECONDS)
+                .readTimeout(translateConfiguration.timeoutSeconds, TimeUnit.SECONDS)
+                .writeTimeout(translateConfiguration.timeoutSeconds, TimeUnit.SECONDS)
                 .build()
 
         val retrofit = Retrofit.Builder()
-            .baseUrl(configuration.baseUrl)
+            .baseUrl(translateConfiguration.baseUrl)
             .client(client)
             .addConverterFactory(MoshiConverterFactory.create())
             .build()
@@ -36,15 +70,9 @@ object TranslateClient {
             retrofit.create(TranslateApi::class.java)
         )
     }
-
-    fun getClient(): TranslateRepository {
-        return requireNotNull(repository) {
-            "TranslateClient is not initialized. Call TranslateClient.initialize() in Application class."
-        }
-    }
 }
 
-class Configuration private constructor(
+class TranslateConfiguration private constructor(
     val apiKey: String,
     val baseUrl: String,
     val okHttpClient: OkHttpClient?,
@@ -62,8 +90,8 @@ class Configuration private constructor(
 
         fun timeoutSeconds(seconds: Long) = apply { timeoutSeconds = seconds }
 
-        fun build(): Configuration {
-            return Configuration(
+        fun build(): TranslateConfiguration {
+            return TranslateConfiguration(
                 apiKey = apiKey,
                 baseUrl = baseUrl,
                 okHttpClient = okHttpClient,

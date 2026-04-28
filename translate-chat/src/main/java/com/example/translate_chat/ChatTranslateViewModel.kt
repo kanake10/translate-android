@@ -4,21 +4,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
 import com.kanake10.translate.TranslateClient
 import com.kanake10.translate.domain.models.Language
-import com.kanake10.translate.repo.TranslateRepository
 import com.kanake10.translate.util.TranslateResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-class ChatTranslateViewModel(
-    private val repository: TranslateRepository
-) : ViewModel() {
+class ChatTranslateViewModel() : ViewModel() {
 
     private val _messages = MutableStateFlow<List<ChatMessage>>(emptyList())
     val messages: StateFlow<List<ChatMessage>> = _messages
@@ -50,7 +45,7 @@ class ChatTranslateViewModel(
         languageLoadError = null
 
         viewModelScope.launch {
-            when (val result = repository.getSupportedLanguages()) {
+            when (val result = TranslateClient.getSupportedLanguages()) {
                 is TranslateResult.Success -> {
                     val langs = result.data
                     _languages.value = langs
@@ -74,7 +69,7 @@ class ChatTranslateViewModel(
 
         viewModelScope.launch {
             isTranslating = true
-            val result = repository.translate(text, sourceCode, targetCode)
+            val result = TranslateClient.translate(text, sourceCode, targetCode)
             _messages.value = _messages.value.map {
                 if (it.id == message.id) {
                     when (result) {
@@ -90,14 +85,6 @@ class ChatTranslateViewModel(
                 } else it
             }
             isTranslating = false
-        }
-    }
-
-    companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(modelClass: Class<T>, extras: CreationExtras): T =
-                ChatTranslateViewModel(TranslateClient.getClient()) as T
         }
     }
 }
