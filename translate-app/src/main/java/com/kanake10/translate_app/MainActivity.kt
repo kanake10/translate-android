@@ -16,23 +16,24 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.kanake10.translate.Configuration
 import com.kanake10.translate.TranslateClient
+import com.kanake10.translate.TranslateConfiguration
 import com.kanake10.translate_ui.ui.Translate
 import com.kanake10.translate_ui.ui.TranslationScreen
+
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val configuration = Configuration.Builder(
+        val translateConfiguration = TranslateConfiguration.Builder(
             apiKey = ""
         )
             .baseUrl("https://api.translateplus.io/")
             .timeoutSeconds(30)
             .build()
 
-        TranslateClient.initialize(configuration)
+        TranslateClient.initialize(translateConfiguration)
 
         setContent {
             MaterialTheme {

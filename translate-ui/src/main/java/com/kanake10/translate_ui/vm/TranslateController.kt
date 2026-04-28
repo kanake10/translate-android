@@ -1,6 +1,6 @@
 package com.kanake10.translate_ui.vm
 
-import com.kanake10.translate.repo.TranslateRepository
+import com.kanake10.translate.TranslateClient.translate
 import com.kanake10.translate.util.TranslateResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -20,7 +20,6 @@ data class TranslateBtnState(
 )
 
 internal class TranslateController(
-    private val repository: TranslateRepository,
     private val scope: CoroutineScope
 ) {
     private val _state = MutableStateFlow(TranslateBtnState())
@@ -62,7 +61,7 @@ internal class TranslateController(
         }
 
         scope.launch {
-            when (val result = repository.translate(
+            when (val result =translate(
                 text = current.text,
                 source = "auto",
                 target = current.phoneLanguage,

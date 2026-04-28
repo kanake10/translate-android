@@ -1,12 +1,9 @@
 package com.kanake10.translate_ui.vm
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.CreationExtras
 import com.kanake10.translate.TranslateClient
 import com.kanake10.translate.domain.models.Language
-import com.kanake10.translate.repo.TranslateRepository
 import com.kanake10.translate.util.TranslateResult
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,9 +21,7 @@ data class TranslationUiState(
     val error: String? = null,
 )
 
-internal class TranslationViewModel(
-    private val repository: TranslateRepository,
-) : ViewModel() {
+internal class TranslationViewModel : ViewModel() {
 
     private val _translateState = MutableStateFlow(TranslationUiState())
     val uiState = _translateState.asStateFlow()
@@ -41,7 +36,7 @@ internal class TranslationViewModel(
         }
 
         viewModelScope.launch {
-            when (val result = repository.getSupportedLanguages()) {
+            when (val result = TranslateClient.getSupportedLanguages()) {
                 is TranslateResult.Success -> {
                     _translateState.update {
                         it.copy(
@@ -96,7 +91,7 @@ internal class TranslationViewModel(
         }
 
         viewModelScope.launch {
-            when (val result = repository.translate(
+            when (val result = TranslateClient.translate(
                 text = state.inputText,
                 source = state.selectedSource?.code ?: "auto",
                 target = state.selectedTarget?.code ?: "en",
@@ -128,13 +123,4 @@ internal class TranslationViewModel(
     private fun List<Language>.defaultTarget() =
         find { it.code == "en" }
 
-    companion object {
-        val Factory: ViewModelProvider.Factory = object : ViewModelProvider.Factory {
-            @Suppress("UNCHECKED_CAST")
-            override fun <T : ViewModel> create(
-                modelClass: Class<T>,
-                extras: CreationExtras
-            ): T = TranslationViewModel(TranslateClient.getClient()) as T
-        }
-    }
 }
