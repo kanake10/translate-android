@@ -4,10 +4,17 @@ import com.kanake10.translate.domain.models.BatchTranslation
 import com.kanake10.translate.domain.models.HealthStatus
 import com.kanake10.translate.domain.models.Language
 import com.kanake10.translate.domain.models.Translation
+import com.kanake10.translate.domain.models.email.EmailRequest
+import com.kanake10.translate.domain.models.email.EmailResult
+import com.kanake10.translate.domain.models.html.HtmlRequest
+import com.kanake10.translate.domain.models.html.HtmlResult
+import com.kanake10.translate.domain.models.subtitles.SubtitleRequest
+import com.kanake10.translate.domain.models.subtitles.SubtitleResult
 import com.kanake10.translate.remote.api.TranslateApi
 import com.kanake10.translate.remote.dtos.batch.BatchTranslateRequest
 import com.kanake10.translate.remote.dtos.text.TranslateRequest
 import com.kanake10.translate.remote.toDomain
+import com.kanake10.translate.remote.toDto
 import com.kanake10.translate.util.TranslateError
 import com.kanake10.translate.util.TranslateResult
 import com.kanake10.translate.util.safeApiCall
@@ -46,6 +53,57 @@ internal class TranslateRepositoryImpl(
         return safeApiCall {
             api.batchTranslate(BatchTranslateRequest(texts, source, target))
                 .translations.map { it.toDomain() }
+        }
+    }
+
+    override suspend fun translateSubtitles(
+        request: SubtitleRequest
+    ): TranslateResult<SubtitleResult> {
+
+        if (request.content.isBlank()) {
+            return TranslateResult.Error(
+                TranslateError.BadRequest("Subtitle content must not be blank")
+            )
+        }
+
+        return safeApiCall {
+            api.translateSubtitles(request.toDto()).toDomain()
+        }
+    }
+
+    override suspend fun translateEmail(
+        request: EmailRequest
+    ): TranslateResult<EmailResult> {
+
+        if (request.subject.isBlank()) {
+            return TranslateResult.Error(
+                TranslateError.BadRequest("Subject must not be blank")
+            )
+        }
+
+        if (request.email_body.isBlank()) {
+            return TranslateResult.Error(
+                TranslateError.BadRequest("Email body must not be blank")
+            )
+        }
+
+        return safeApiCall {
+            api.translateEmail(request.toDto()).toDomain()
+        }
+    }
+
+    override suspend fun translateHtml(
+        request: HtmlRequest
+    ): TranslateResult<HtmlResult> {
+
+        if (request.html.isBlank()) {
+            return TranslateResult.Error(
+                TranslateError.BadRequest("HTML must not be blank")
+            )
+        }
+
+        return safeApiCall {
+            api.translateHtml(request.toDto()).toDomain()
         }
     }
 

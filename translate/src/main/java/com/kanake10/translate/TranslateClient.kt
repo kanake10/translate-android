@@ -4,6 +4,12 @@ import com.kanake10.translate.domain.models.BatchTranslation
 import com.kanake10.translate.domain.models.HealthStatus
 import com.kanake10.translate.domain.models.Language
 import com.kanake10.translate.domain.models.Translation
+import com.kanake10.translate.domain.models.email.EmailRequest
+import com.kanake10.translate.domain.models.email.EmailResult
+import com.kanake10.translate.domain.models.html.HtmlRequest
+import com.kanake10.translate.domain.models.html.HtmlResult
+import com.kanake10.translate.domain.models.subtitles.SubtitleRequest
+import com.kanake10.translate.domain.models.subtitles.SubtitleResult
 import com.kanake10.translate.remote.TranslateInterceptors
 import com.kanake10.translate.remote.api.TranslateApi
 import com.kanake10.translate.repo.TranslateRepository
@@ -39,6 +45,24 @@ object TranslateClient {
         target: String
     ): TranslateResult<List<BatchTranslation>> {
         return getRepository().batchTranslate(texts, source, target)
+    }
+
+    suspend fun translateSubtitles(
+        request: SubtitleRequest
+    ): TranslateResult<SubtitleResult> {
+        return getRepository().translateSubtitles(request)
+    }
+
+    suspend fun translateEmail(
+        request: EmailRequest
+    ): TranslateResult<EmailResult> {
+        return getRepository().translateEmail(request)
+    }
+
+    suspend fun translateHtml(
+        request: HtmlRequest
+    ): TranslateResult<HtmlResult> {
+        return getRepository().translateHtml(request)
     }
 
     suspend fun checkHealth(): TranslateResult<HealthStatus> {
