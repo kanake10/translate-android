@@ -20,6 +20,18 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 
+/**
+ * Entry point for the Translate SDK.
+ *
+ *  Provides access to all translation features including:
+ * - Single text translation
+ * - Batch translation
+ * - Subtitle translation
+ * - Email translation
+ * - HTML translation
+ * - Language support
+ * */
+
 object TranslateClient {
 
     @Volatile
@@ -31,6 +43,15 @@ object TranslateClient {
         }
     }
 
+    /**
+     * Translates a single text string from a source language to a target language.
+     *
+     * @param text the text to translate
+     * @param source source language code (default: "auto")
+     * @param target target language code (required)
+     *
+     * @return [TranslateResult] containing either [Translation] or [TranslateError]
+     */
     suspend fun translate(
         text: String,
         source: String = "auto",
@@ -39,6 +60,15 @@ object TranslateClient {
         return getRepository().translate(text, source, target)
     }
 
+    /**
+     * Translates multiple text strings in a single request.
+     *
+     * @param texts list of texts to translate
+     * @param source source language code (default: "auto")
+     * @param target target language code
+     *
+     * @return [TranslateResult] containing list of [BatchTranslation]
+     */
     suspend fun batchTranslate(
         texts: List<String>,
         source: String = "auto",
@@ -47,18 +77,42 @@ object TranslateClient {
         return getRepository().batchTranslate(texts, source, target)
     }
 
+    /**
+     * Translates subtitle content while preserving structure and timing.
+     *
+     * @param request Subtitle translation request for [SubtitleRequest]
+     * Supported formats for [SubtitleRequest.format]:
+     * - "srt"
+     * - "vtt"
+     *
+     * @return Translated subtitle result wrapped in [TranslateResult]
+     */
     suspend fun translateSubtitles(
         request: SubtitleRequest
     ): TranslateResult<SubtitleResult> {
         return getRepository().translateSubtitles(request)
     }
 
+    /**
+     * Translates an email including subject and body while preserving formatting.
+     *
+     * @param request email translation request for [EmailRequest]
+     *
+     * @return translated email content wrapped in [TranslateResult]
+     */
     suspend fun translateEmail(
         request: EmailRequest
     ): TranslateResult<EmailResult> {
         return getRepository().translateEmail(request)
     }
 
+    /**
+     * Translates HTML content while preserving tags and structure.
+     *
+     * @param request HTML translation request for [HtmlRequest]
+     *
+     * @return translated HTML result wrapped in [TranslateResult]
+     */
     suspend fun translateHtml(
         request: HtmlRequest
     ): TranslateResult<HtmlResult> {
@@ -69,9 +123,26 @@ object TranslateClient {
         return getRepository().checkHealth()
     }
 
+    /**
+     * Retrieves all languages supported.
+     *
+     * @return list of supported [Language] wrapped in [TranslateResult]
+     */
     suspend fun getSupportedLanguages(): TranslateResult<List<Language>> {
         return getRepository().getSupportedLanguages()
     }
+
+    /**
+     * Initializes the TranslateClient with required configuration.
+     *
+     * This method sets up:
+     * - Retrofit networking layer
+     * - OkHttp client with API key interceptor
+     * - Repository implementation
+     *
+     *
+     * @param translateConfiguration configuration object containing API key, base URL and timeout settings
+     */
     fun initialize(translateConfiguration: TranslateConfiguration) {
         val client = translateConfiguration.okHttpClient
             ?.newBuilder()
@@ -96,12 +167,27 @@ object TranslateClient {
     }
 }
 
+/**
+ * Configuration object used to initialize the Translate SDK.
+ *
+ * Contains:
+ * - API key
+ * - Base URL
+ * - OkHttp client (optional)
+ * - Timeout settings
+ */
 class TranslateConfiguration private constructor(
     val apiKey: String,
     val baseUrl: String,
     val okHttpClient: OkHttpClient?,
     val timeoutSeconds: Long
 ) {
+
+    /**
+     * Builder used to construct [TranslateConfiguration].
+     *
+     * @param apiKey API key provided by TranslatePlus
+     */
     class Builder(private val apiKey: String) {
 
         private var baseUrl: String = "https://api.translateplus.io/"
@@ -110,8 +196,21 @@ class TranslateConfiguration private constructor(
 
         fun baseUrl(url: String) = apply { baseUrl = url }
 
+        /**
+         * Sets a custom OkHttpClient for networking customization.
+         *
+         * Useful for:
+         * - Logging interceptors
+         * - Caching
+         * - Custom timeouts
+         */
         fun okHttpClient(client: OkHttpClient) = apply { okHttpClient = client }
 
+        /**
+         * Sets network timeout in seconds for all requests.
+         *
+         * @param seconds timeout duration
+         */
         fun timeoutSeconds(seconds: Long) = apply { timeoutSeconds = seconds }
 
         fun build(): TranslateConfiguration {

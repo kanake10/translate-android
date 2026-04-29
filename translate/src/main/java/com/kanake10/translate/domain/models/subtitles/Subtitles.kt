@@ -1,5 +1,9 @@
 package com.kanake10.translate.domain.models.subtitles
 
+/**
+ * format support here right now is "srt" and "vtt"
+ *
+ */
 data class SubtitleRequest(
     val format: String,
     val content: String,
