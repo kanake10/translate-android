@@ -10,6 +10,18 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+/**
+ * UI state for the translation screen.
+ *
+ * @param inputText Current text entered by the user.
+ * @param translatedText Result of the translated text.
+ * @param languages List of supported languages.
+ * @param selectedSource Currently selected source language.
+ * @param selectedTarget Currently selected target language.
+ * @param isLoading Whether a translation request is in progress.
+ * @param isLoadingLanguages Whether languages are being loaded.
+ * @param error Optional error message to display.
+ */
 data class TranslationUiState(
     val inputText: String = "",
     val translatedText: String = "",
@@ -21,6 +33,15 @@ data class TranslationUiState(
     val error: String? = null,
 )
 
+/**
+ * ViewModel responsible for managing translation screen state.
+ *
+ * Handles:
+ * - Loading supported languages
+ * - Managing user input
+ * - Performing translation requests
+ * - Updating UI state (loading, success, error)
+ */
 internal class TranslationViewModel : ViewModel() {
 
     private val _translateState = MutableStateFlow(TranslationUiState())

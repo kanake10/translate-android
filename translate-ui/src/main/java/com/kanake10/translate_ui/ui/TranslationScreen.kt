@@ -38,6 +38,27 @@ import com.kanake10.translate.domain.models.Language
 import com.kanake10.translate_ui.vm.TranslateController
 import com.kanake10.translate_ui.vm.TranslationViewModel
 
+
+/**
+ * A full translation screen composable that handles text input, language selection,
+ * translation execution and result display.
+ *
+ * This component is backed by a ViewModel and manages translation state,
+ * loading and error handling internally.
+ *
+ * @param modifier Modifier applied to the root container.
+ * @param translateFrom Optional source language code to preselect (e.g. "en").
+ * @param translateTo Optional target language code to preselect (e.g. "fr").
+ * @param headerContent Optional composable displayed at the top of the screen.
+ * @param translateLanguageSelector Composable used to render language selection UI.
+ * Provides available languages, selected source/target, and selection callbacks.
+ * @param translateInputField Composable for entering text to translate.
+ * Provides current text and a callback for text changes.
+ * @param translationContent Composable for displaying the translated text.
+ * @param translateButton Composable for triggering the translation action.
+ * Provides loading state and click handler.
+ * @param translateErrorContent Composable for displaying error messages.
+ */
 @Composable
 fun TranslationScreen(
     modifier: Modifier = Modifier,
@@ -309,6 +330,23 @@ internal fun TranslateErrorContent(
     )
 }
 
+/**
+ * A composable that provides a simple translate/undo action for a given text.
+ *
+ * Internally manages translation state, loading state, and toggling between
+ * original and translated text. When the translation result changes
+ * [onTranslated] is invoked with the current text.
+ *
+ * @param postText The text to be translated. When this changes, the internal state resets.
+ * @param modifier Modifier for styling and layout of the container.
+ * @param onTranslated Callback invoked when the displayed text changes
+ * (either translated or reverted to original).
+ * @param buttonContent Slot for customizing the translate button UI.
+ * Provides:
+ * - [isTranslated]: whether the text is currently translated
+ * - [isLoading]: whether a translation request is in progress
+ * - [onClick]: triggers the translate/undo action
+ */
 @Composable
 fun Translate(
     postText: String,

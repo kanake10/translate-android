@@ -16,13 +16,16 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
 
+/**
+ * Retrofit interface defining all TranslatePlus API endpoints.
+ *
+ */
 internal interface TranslateApi {
 
     @POST("v2/translate")
     suspend fun translate(
         @Body request: TranslateRequest
     ): TranslateResponse
-
     @POST("v2/translate/batch")
     suspend fun batchTranslate(
         @Body request: BatchTranslateRequest

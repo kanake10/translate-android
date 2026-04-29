@@ -9,7 +9,16 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
 
-
+/**
+ * UI state for the [com.kanake10.translate_ui.ui.Translate] composable button.
+ *
+ * @param text Current displayed text (original or translated).
+ * @param isTranslated Whether the text is currently translated.
+ * @param isLoading Whether a translation request is in progress.
+ * @param error Optional error message.
+ * @param phoneLanguage Device language used as translation target.
+ * @param originalText Original unmodified text.
+ */
 data class TranslateBtnState(
     val text: String = "",
     val isTranslated: Boolean = false,
@@ -19,6 +28,16 @@ data class TranslateBtnState(
     val originalText: String = "",
 )
 
+/**
+ * Controller responsible for managing translation logic for the [Translate] composable.
+ *
+ * Handles:
+ * - Translation requests
+ * - Toggle between original and translated text
+ * - Loading and error state management
+ *
+ * @param scope Coroutine scope used to perform async operations.
+ */
 internal class TranslateController(
     private val scope: CoroutineScope
 ) {

@@ -1,8 +1,19 @@
 package com.kanake10.translate.util
 
-import java.io.IOException
 import org.json.JSONObject
 import retrofit2.HttpException
+import java.io.IOException
+
+/**
+ * Represents all possible errors from the TranslatePlus SDK.
+ *
+ * Includes:
+ * - Network errors
+ * - Authentication issues
+ * - Rate limiting
+ * - API failures
+ * - Validation errors
+ */
 sealed class TranslateError {
     object MissingApiKey : TranslateError()
     object InvalidApiKey : TranslateError()
@@ -15,6 +26,13 @@ sealed class TranslateError {
     object NetworkError : TranslateError()
     data class Unknown(val code: Int, val detail: String) : TranslateError()
 
+    /**
+     * Converts error into a human-readable message.
+     *
+     * Useful for displaying UI-friendly error messages.
+     *
+     * @return readable error string
+     */
     fun toMessage(): String = when (this) {
         is MissingApiKey -> "API key is missing"
         is InvalidApiKey -> "Invalid API key"
@@ -29,6 +47,13 @@ sealed class TranslateError {
     }
 }
 
+/**
+ * Wrapper for all SDK responses.
+ *
+ * Represents either:
+ * - [Success] containing valid data
+ * - [Error] containing a [TranslateError]
+ */
 sealed class TranslateResult<out T> {
     data class Success<T>(val data: T) : TranslateResult<T>()
     data class Error(val error: TranslateError) : TranslateResult<Nothing>()
@@ -65,6 +90,17 @@ internal fun HttpException.toTranslateError(): TranslateError {
     }
 }
 
+/**
+ * Safely executes an API call and wraps the result in [TranslateResult].
+ *
+ * Handles:
+ * - HTTP exceptions
+ * - IO/network errors
+ * - Unexpected runtime exceptions
+ *
+ * @param call suspend API call
+ * @return wrapped success or error result
+ */
 internal suspend fun <T> safeApiCall(
     call: suspend () -> T
 ): TranslateResult<T> = try {
