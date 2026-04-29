@@ -28,7 +28,6 @@ subprojects {
         }
 
         extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension> {
-            toolVersion = "1.23.6"
             config.setFrom(rootProject.file("config/detekt.yml"))
             buildUponDefaultConfig = true
             allRules = false
