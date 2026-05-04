@@ -4,6 +4,7 @@ plugins {
   alias(libs.plugins.metalava)
   alias(libs.plugins.ktfmt)
   alias(libs.plugins.publish)
+  alias(libs.plugins.dokka)
 }
 
 android {

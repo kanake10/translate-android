@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.kover) apply false
     alias(libs.plugins.spotless)
     alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.dokka)
 }
 
 subprojects {
@@ -34,4 +35,45 @@ subprojects {
             autoCorrect = true
         }
     }
+}
+
+dokka {
+    moduleName.set("Translate")
+
+    dokkaPublications.html {
+        outputDirectory.set(rootDir.resolve("docs/kdoc"))
+
+        failOnWarning.set(true)
+        suppressInheritedMembers.set(true)
+    }
+
+    dokkaSourceSets.configureEach {
+        documentedVisibilities(
+            org.jetbrains.dokka.gradle.engine.parameters.VisibilityModifier.Public
+        )
+        includes.from("README.md")
+
+        sourceLink {
+            localDirectory.set(file("src/main/kotlin"))
+            remoteUrl("https://github.com/kanake10/translate-android")
+            remoteLineSuffix.set("#L")
+        }
+
+        externalDocumentationLinks.register("android") {
+            url("https://developer.android.com/reference/")
+        }
+
+        externalDocumentationLinks.register("kotlin") {
+            url("https://kotlinlang.org/api/latest/jvm/stdlib/")
+        }
+    }
+}
+
+dependencies {
+    subprojects
+        .filter {
+            it.plugins.hasPlugin("com.android.library") ||
+                    it.plugins.hasPlugin("org.jetbrains.kotlin.jvm")
+        }
+        .forEach { dokka(it) }
 }
