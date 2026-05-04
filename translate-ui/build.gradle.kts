@@ -58,7 +58,7 @@ mavenPublishing {
     }
 
     scm {
-      url.set("https://github.com/kanake10/translate")
+      url.set("https://github.com/kanake10/translate-android")
       connection.set("scm:git:git://github.com/kanake10/translate-android.git")
       developerConnection.set("scm:git:ssh://git@github.com/kanake10/translate-android.git")
     }
