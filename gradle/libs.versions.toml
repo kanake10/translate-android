@@ -22,6 +22,7 @@ vanniktech = "0.36.0"
 spotless="6.24.0"
 mockk = "1.13.12"
 coroutinesTest = "1.8.1"
+dokka = "2.2.0"
 
 [libraries]
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -69,3 +70,4 @@ publish = { id = "com.vanniktech.maven.publish", version.ref = "vanniktech" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
+dokka = { id = "org.jetbrains.dokka", version.ref = "dokka" }
