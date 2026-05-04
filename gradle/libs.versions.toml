@@ -20,6 +20,8 @@ retrofit = "2.9.0"
 room = "2.5.0"
 vanniktech = "0.36.0"
 spotless="6.24.0"
+mockk = "1.13.12"
+coroutinesTest = "1.8.1"
 
 [libraries]
 androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose" }
@@ -52,6 +54,9 @@ retrofit-moshi = { group = "com.squareup.retrofit2", name = "converter-moshi", v
 room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room" }
 room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room" }
 room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room" }
+
+mockk = { module = "io.mockk:mockk", version.ref = "mockk" }
+coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutinesTest" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
