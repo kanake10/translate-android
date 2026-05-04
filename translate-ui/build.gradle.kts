@@ -3,7 +3,7 @@ plugins {
   alias(libs.plugins.kotlin.compose)
   alias(libs.plugins.metalava)
   alias(libs.plugins.ktfmt)
-    alias(libs.plugins.publish)
+  alias(libs.plugins.publish)
 }
 
 android {
@@ -32,41 +32,37 @@ android {
 }
 
 mavenPublishing {
-    publishToMavenCentral()
-    signAllPublications()
+  publishToMavenCentral()
+  signAllPublications()
 
-    coordinates(
-        groupId = "io.github.kanake10",
-        artifactId = "translate-ui",
-        version = "1.1.0"
-    )
+  coordinates(groupId = "io.github.kanake10", artifactId = "translate-ui", version = "1.1.0")
 
-    pom {
-        name.set("Translate UI")
-        description.set("Compose UI for Translate SDK")
-        url.set("https://github.com/kanake10/translate-android")
+  pom {
+    name.set("Translate UI")
+    description.set("Compose UI for Translate SDK")
+    url.set("https://github.com/kanake10/translate-android")
 
-        licenses {
-            license {
-                name.set("Apache-2.0")
-                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-            }
-        }
-
-        developers {
-            developer {
-                id.set("kanake10")
-                name.set("Ezra Kanake")
-                url.set("https://github.com/kanake10")
-            }
-        }
-
-        scm {
-            url.set("https://github.com/kanake10/translate")
-            connection.set("scm:git:git://github.com/kanake10/translate-android.git")
-            developerConnection.set("scm:git:ssh://git@github.com/kanake10/translate-android.git")
-        }
+    licenses {
+      license {
+        name.set("Apache-2.0")
+        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+      }
     }
+
+    developers {
+      developer {
+        id.set("kanake10")
+        name.set("Ezra Kanake")
+        url.set("https://github.com/kanake10")
+      }
+    }
+
+    scm {
+      url.set("https://github.com/kanake10/translate-android")
+      connection.set("scm:git:git://github.com/kanake10/translate-android.git")
+      developerConnection.set("scm:git:ssh://git@github.com/kanake10/translate-android.git")
+    }
+  }
 }
 
 metalava {
