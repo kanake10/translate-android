@@ -67,6 +67,7 @@ object TranslateClient {
      *
      * @return [TranslateResult] containing either [Translation] or [TranslateError]
      */
+    @JvmOverloads
     @JvmStatic
     suspend fun translate(
         text: String,
@@ -85,6 +86,7 @@ object TranslateClient {
      *
      * @return [TranslateResult] containing list of [BatchTranslation]
      */
+    @JvmOverloads
     @JvmStatic
     suspend fun batchTranslate(
         texts: List<String>,
