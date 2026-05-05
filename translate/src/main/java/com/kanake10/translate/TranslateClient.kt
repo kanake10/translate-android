@@ -67,6 +67,7 @@ object TranslateClient {
      *
      * @return [TranslateResult] containing either [Translation] or [TranslateError]
      */
+    @JvmStatic
     suspend fun translate(
         text: String,
         source: String = "auto",
@@ -84,6 +85,7 @@ object TranslateClient {
      *
      * @return [TranslateResult] containing list of [BatchTranslation]
      */
+    @JvmStatic
     suspend fun batchTranslate(
         texts: List<String>,
         source: String = "auto",
@@ -102,6 +104,7 @@ object TranslateClient {
      *
      * @return Translated subtitle result wrapped in [TranslateResult]
      */
+    @JvmStatic
     suspend fun translateSubtitles(
         request: SubtitleRequest
     ): TranslateResult<SubtitleResult> {
@@ -115,6 +118,7 @@ object TranslateClient {
      *
      * @return translated email content wrapped in [TranslateResult]
      */
+    @JvmStatic
     suspend fun translateEmail(
         request: EmailRequest
     ): TranslateResult<EmailResult> {
@@ -128,12 +132,14 @@ object TranslateClient {
      *
      * @return translated HTML result wrapped in [TranslateResult]
      */
+    @JvmStatic
     suspend fun translateHtml(
         request: HtmlRequest
     ): TranslateResult<HtmlResult> {
         return getRepository().translateHtml(request)
     }
 
+    @JvmStatic
     suspend fun checkHealth(): TranslateResult<HealthStatus> {
         return getRepository().checkHealth()
     }
@@ -143,6 +149,7 @@ object TranslateClient {
      *
      * @return list of supported [Language] wrapped in [TranslateResult]
      */
+    @JvmStatic
     suspend fun getSupportedLanguages(): TranslateResult<List<Language>> {
         return getRepository().getSupportedLanguages()
     }
@@ -158,6 +165,7 @@ object TranslateClient {
      *
      * @param translateConfiguration configuration object containing API key, base URL and timeout settings
      */
+    @JvmStatic
     fun initialize(translateConfiguration: TranslateConfiguration) {
         val client = translateConfiguration.okHttpClient
             ?.newBuilder()
