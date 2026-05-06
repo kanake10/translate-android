@@ -226,7 +226,17 @@ internal fun ChatBubble(message: ChatMessage) {
             .fillMaxWidth()
             .padding(vertical = 4.dp)
     ) {
+
         if (message.sourceText.isNotEmpty()) {
+            Text(
+                text = message.sourceLangCode ?: "??",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray,
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 8.dp, bottom = 2.dp)
+            )
+
             Surface(
                 tonalElevation = 2.dp,
                 shape = RoundedCornerShape(16.dp),
@@ -240,7 +250,8 @@ internal fun ChatBubble(message: ChatMessage) {
                 )
             }
         }
-        Spacer(modifier = Modifier.height(4.dp))
+
+        Spacer(modifier = Modifier.height(6.dp))
 
         if (message.isLoading) {
             CircularProgressIndicator(
@@ -253,7 +264,15 @@ internal fun ChatBubble(message: ChatMessage) {
         }
 
         if (message.translatedText.isNotEmpty()) {
-            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = message.targetLangCode ?: "??",
+                style = MaterialTheme.typography.labelSmall,
+                color = Color.Gray,
+                modifier = Modifier
+                    .align(Alignment.End)
+                    .padding(end = 8.dp, bottom = 2.dp)
+            )
+
             Surface(
                 tonalElevation = 2.dp,
                 shape = RoundedCornerShape(16.dp),
@@ -268,6 +287,7 @@ internal fun ChatBubble(message: ChatMessage) {
                 )
             }
         }
+
         message.error?.let { error ->
             Spacer(modifier = Modifier.height(4.dp))
             Text(

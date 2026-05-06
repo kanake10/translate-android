@@ -79,7 +79,12 @@ class ChatTranslateViewModel() : ViewModel() {
     fun sendMessage(text: String, sourceCode: String, targetCode: String) {
         if (text.isBlank()) return
 
-        val message = ChatMessage(sourceText = text, isLoading = true)
+        val message = ChatMessage(
+            sourceText = text,
+            isLoading = true,
+            sourceLangCode = sourceCode,
+            targetLangCode = targetCode
+        )
         _messages.value = _messages.value + message
 
         viewModelScope.launch {
@@ -108,6 +113,8 @@ data class ChatMessage(
     val id: String = UUID.randomUUID().toString(),
     val sourceText: String,
     val translatedText: String = "",
+    val sourceLangCode: String? = null,
+    val targetLangCode: String? = null,
     val isLoading: Boolean = false,
     val error: String? = null
 )
