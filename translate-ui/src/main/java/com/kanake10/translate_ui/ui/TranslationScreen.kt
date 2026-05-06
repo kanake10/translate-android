@@ -17,7 +17,6 @@ package com.kanake10.translate_ui.ui
 
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -37,17 +36,22 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -360,77 +364,90 @@ internal fun TranslateErrorContent(
 /**
  * A composable that provides a simple translate/undo action for a given text.
  *
- * Internally manages translation state, loading state, and toggling between
- * original and translated text. When the translation result changes
- * [onTranslated] is invoked with the current text.
- *
- * @param postText The text to be translated. When this changes, the internal state resets.
- * @param modifier Modifier for styling and layout of the container.
- * @param onTranslated Callback invoked when the displayed text changes
- * (either translated or reverted to original).
- * @param buttonContent Slot for customizing the translate button UI.
- * Provides:
- * - [isTranslated]: whether the text is currently translated
- * - [isLoading]: whether a translation request is in progress
- * - [onClick]: triggers the translate/undo action
+ * @param text         The source text to display and translate.
+ * @param modifier     Applied to the outer [Column] container.
+ * @param textStyle    Style applied to the displayed text.
+ * @param onTranslated Optional callback invoked whenever the displayed text
+ *                     changes (translated or reverted). Defaults to no-op.
+ * @param button       Slot to override the default translate/undo button.
+ *                     Receives [isTranslated], [isLoading], and [onClick].
  */
 @Composable
 fun Translate(
-    postText: String,
+    text: String,
     modifier: Modifier = Modifier,
+    textStyle: TextStyle = LocalTextStyle.current,
     onTranslated: (String) -> Unit = {},
-    buttonContent: @Composable (
+    button: @Composable (
         isTranslated: Boolean,
         isLoading: Boolean,
         onClick: () -> Unit,
     ) -> Unit = { isTranslated, isLoading, onClick ->
-        Button(
+        DefaultTranslateButton(
+            isTranslated = isTranslated,
+            isLoading = isLoading,
             onClick = onClick,
-            enabled = !isLoading,
-            modifier = Modifier.fillMaxWidth(),
-        ) {
-            if (isLoading) {
-                CircularProgressIndicator(
-                    modifier = Modifier.size(18.dp),
-                    strokeWidth = 2.dp
-                )
-            } else {
-                Text(if (isTranslated) "Undo" else "Translate")
-            }
-        }
+        )
     },
 ) {
     val scope = rememberCoroutineScope()
-
-    val controller = remember {
-        TranslateController(
-            scope = scope
-        )
-    }
-
+    val controller = remember { TranslateController(scope) }
     val state by controller.state.collectAsStateWithLifecycle()
 
-    val isInitialized = remember { mutableStateOf(false) }
+    LaunchedEffect(text) { controller.setText(text) }
 
-    LaunchedEffect(postText) {
-        controller.setText(postText)
-        isInitialized.value = false
-    }
-
-    LaunchedEffect(state.text, state.isTranslated) {
-        if (!isInitialized.value) {
-            isInitialized.value = true
+    val initialized = rememberUpdatedState(false)
+    LaunchedEffect(state.displayText) {
+        if (!initialized.value) {
+            (initialized as MutableState).value = true
             return@LaunchedEffect
         }
-        onTranslated(state.text)
+        onTranslated(state.displayText)
     }
 
-    Box(modifier = modifier) {
-        buttonContent(
+    Column(modifier = modifier) {
+        Text(
+            text = state.displayText,
+            style = textStyle,
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        button(
             state.isTranslated,
-            state.isLoading
+            state.isLoading,
         ) {
             controller.toggleTranslate()
         }
+
+        state.error?.let { error ->
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = error,
+                color = MaterialTheme.colorScheme.error,
+                style = MaterialTheme.typography.labelSmall,
+            )
+        }
+    }
+}
+
+@Composable
+private fun DefaultTranslateButton(
+    isTranslated: Boolean,
+    isLoading: Boolean,
+    onClick: () -> Unit,
+) {
+    TextButton(
+        onClick = onClick,
+        enabled = !isLoading,
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator(
+                modifier = Modifier.size(14.dp),
+                strokeWidth = 2.dp,
+            )
+            Spacer(modifier = Modifier.width(6.dp))
+        }
+        Text(if (isTranslated) "Undo translation" else "Translate")
     }
 }
