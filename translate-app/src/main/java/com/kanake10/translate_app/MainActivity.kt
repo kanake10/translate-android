@@ -20,6 +20,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -27,7 +31,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -57,49 +60,54 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-/**
- *   call FeedScreen in setContent {}
- */
 data class Post(
     val id: String,
-    val post: String,
+    val body: String,
     val author: String,
 )
 
+/**
+ *   call FeedScreen in setContent {}
+ */
 @Composable
 fun FeedScreen() {
     val posts = remember {
         listOf(
-            Post(id = "3", post = "Bonjour, comment ça va?", author = "Charlie"),
+            Post(id = "1", author = "Alice",   body = "Bonjour, comment ça va aujourd'hui?"),
+            Post(id = "2", author = "Bob",     body = "Hola, ¿cómo estás?"),
+            Post(id = "3", author = "Charlie", body = "Ciao, come stai?"),
+            Post(id = "4", author = "Diana",   body = "Guten Tag, wie geht es Ihnen?"),
         )
     }
 
-    val translatedTexts = remember { mutableStateMapOf<String, String>() }
-
     LazyColumn(
-        modifier = Modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        contentPadding = PaddingValues(16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         items(posts, key = { it.id }) { post ->
+            PostCard(post)
+        }
+    }
+}
 
-            val textToShow = translatedTexts[post.id] ?: post.post
+@Composable
+private fun PostCard(post: Post) {
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(modifier = Modifier.padding(16.dp)) {
 
-            Card {
-                Column(modifier = Modifier.padding(16.dp)) {
+            Text(
+                text = post.author,
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.primary,
+            )
 
-                    Text(post.author)
+            Spacer(modifier = Modifier.height(4.dp))
 
-                    Text(textToShow)
-
-                    Translate(
-                        postText = post.post,
-                        modifier = Modifier.padding(top = 8.dp),
-                        onTranslated = { translated ->
-                            translatedTexts[post.id] = translated
-                        }
-                    )
-                }
-            }
+            Translate(
+                text = post.body,
+                modifier = Modifier.fillMaxWidth(),
+                textStyle = MaterialTheme.typography.bodyMedium,
+            )
         }
     }
 }

@@ -54,6 +54,6 @@ dependencies {
   implementation(libs.okhttp.core)
 
   testImplementation(libs.junit)
-    testImplementation(libs.mockk)
-    testImplementation(libs.coroutines.test)
+  testImplementation(libs.mockk)
+  testImplementation(libs.coroutines.test)
 }

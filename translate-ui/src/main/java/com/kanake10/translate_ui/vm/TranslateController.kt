@@ -20,54 +20,51 @@ import com.kanake10.translate.util.TranslateResult
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Locale
 
 /**
- * UI state for the [com.kanake10.translate_ui.ui.Translate] composable button.
- *
- * @param text Current displayed text (original or translated).
- * @param isTranslated Whether the text is currently translated.
- * @param isLoading Whether a translation request is in progress.
- * @param error Optional error message.
- * @param phoneLanguage Device language used as translation target.
- * @param originalText Original unmodified text.
- */
+* @param displayText    Text currently shown — either original or translated.
+* @param originalText   Unmodified source text; never changes after [TranslateController.setText].
+* @param isTranslated   True when the displayed text is the translated version.
+* @param isLoading      True while a translation network request is in progress.
+* @param error          Non-null when the last translation attempt failed.
+* @param targetLanguage BCP-47 language tag used as the translation target.
+*                       Defaults to [Locale.getDefault().language].
+*/
 data class TranslateBtnState(
-    val text: String = "",
+    val displayText: String = "",
+    val originalText: String = "",
     val isTranslated: Boolean = false,
     val isLoading: Boolean = false,
     val error: String? = null,
-    val phoneLanguage: String = Locale.getDefault().language,
-    val originalText: String = "",
+    val targetLanguage: String = Locale.getDefault().language,
 )
 
 /**
  * Controller responsible for managing translation logic for the [Translate] composable.
  *
  * Handles:
- * - Translation requests
- * - Toggle between original and translated text
- * - Loading and error state management
+ *   Storing and resetting the source text via [setText]
+ *   Toggling between original and translated text via [toggleTranslate]
+ *   Performing async translation requests and surfacing loading / error state
+ *   Restoring the original text instantly on undo (no network call)
  *
  * @param scope Coroutine scope used to perform async operations.
  */
-internal class TranslateController(
-    private val scope: CoroutineScope
-) {
-    private val _state = MutableStateFlow(TranslateBtnState())
-    val state: StateFlow<TranslateBtnState> = _state
+internal class TranslateController(private val scope: CoroutineScope) {
 
-    private var originalText: String = ""
+    private val _state = MutableStateFlow(TranslateBtnState())
+    val state: StateFlow<TranslateBtnState> = _state.asStateFlow()
 
     fun setText(value: String) {
         _state.update {
-            it.copy(
-                text = value,
+            TranslateBtnState(
+                displayText = value,
                 originalText = value,
-                isTranslated = false,
-                error = null
+                targetLanguage = it.targetLanguage,
             )
         }
     }
@@ -77,47 +74,34 @@ internal class TranslateController(
 
         if (current.isTranslated) {
             _state.update {
-                it.copy(
-                    text = current.originalText,
-                    isTranslated = false
-                )
+                it.copy(displayText = current.originalText, isTranslated = false)
             }
             return
         }
 
-        if (current.text.isBlank() || current.isLoading) return
+        if (current.displayText.isBlank() || current.isLoading) return
 
-        _state.update {
-            it.copy(
-                isLoading = true,
-                error = null
-            )
-        }
+        _state.update { it.copy(isLoading = true, error = null) }
 
         scope.launch {
-            when (val result =translate(
-                text = current.text,
+            when (val result = translate(
+                text = current.originalText,
                 source = "auto",
-                target = current.phoneLanguage,
+                target = current.targetLanguage,
             )) {
-                is TranslateResult.Success -> {
-                    originalText = current.text
-                    _state.update {
-                        it.copy(
-                            text = result.data.translatedText,
-                            isTranslated = true,
-                            isLoading = false
-                        )
-                    }
+                is TranslateResult.Success -> _state.update {
+                    it.copy(
+                        displayText = result.data.translatedText,
+                        isTranslated = true,
+                        isLoading = false,
+                    )
                 }
 
-                is TranslateResult.Error -> {
-                    _state.update {
-                        it.copy(
-                            error = result.error.toMessage(),
-                            isLoading = false
-                        )
-                    }
+                is TranslateResult.Error -> _state.update {
+                    it.copy(
+                        error = result.error.toMessage(),
+                        isLoading = false,
+                    )
                 }
             }
         }
