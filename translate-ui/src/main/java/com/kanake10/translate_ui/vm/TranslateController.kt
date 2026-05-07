@@ -32,7 +32,7 @@ import java.util.Locale
 * @param isLoading      True while a translation network request is in progress.
 * @param error          Non-null when the last translation attempt failed.
 * @param targetLanguage BCP-47 language tag used as the translation target.
-*                       Defaults to [Locale.getDefault().language].
+*                       Defaults to `Locale.getDefault().language`.
 */
 data class TranslateBtnState(
     val displayText: String = "",
@@ -44,7 +44,7 @@ data class TranslateBtnState(
 )
 
 /**
- * Controller responsible for managing translation logic for the [Translate] composable.
+ * Controller responsible for managing translation logic for the [com.kanake10.translate_ui.ui.Translate] composable.
  *
  * Handles:
  *   Storing and resetting the source text via [setText]

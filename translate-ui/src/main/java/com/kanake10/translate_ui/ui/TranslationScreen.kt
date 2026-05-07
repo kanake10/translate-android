@@ -44,12 +44,10 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -77,8 +75,8 @@ import com.kanake10.translate_ui.vm.TranslationViewModel
  * @param translateInputField Composable for entering text to translate.
  * Provides current text and a callback for text changes.
  * @param translationContent Composable for displaying the translated text.
- * @param translateButton Composable for triggering the translation action.
- * Provides loading state and click handler.
+ * @param translateButton Composable used to trigger translation.
+ * Receives the loading state and a callback to start translation.
  * @param translateErrorContent Composable for displaying error messages.
  */
 @Composable
@@ -367,13 +365,16 @@ internal fun TranslateErrorContent(
 /**
  * A composable that provides a simple translate/undo action for a given text.
  *
- * @param text         The source text to display and translate.
- * @param modifier     Applied to the outer [Column] container.
- * @param textStyle    Style applied to the displayed text.
- * @param onTranslated Optional callback invoked whenever the displayed text
- *                     changes (translated or reverted). Defaults to no-op.
- * @param button       Slot to override the default translate/undo button.
- *                     Receives [isTranslated], [isLoading], and [onClick].
+ * @param text The source text to display and translate.
+ * @param modifier Modifier applied to the outer Column container.
+ * @param textStyle Style applied to the displayed text.
+ * @param onTranslated Callback invoked whenever the displayed text changes,
+ * either translated or reverted.
+ * @param button Slot used to render the translate action UI.
+ * The slot receives:
+ * - whether the text is currently translated,
+ * - whether a translation request is in progress,
+ * - and a callback used to trigger translation.
  */
 @Composable
 fun Translate(
@@ -399,12 +400,14 @@ fun Translate(
 
     LaunchedEffect(text) { controller.setText(text) }
 
-    val initialized = rememberUpdatedState(false)
+    var initialized by remember { mutableStateOf(false) }
+
     LaunchedEffect(state.displayText) {
-        if (!initialized.value) {
-            (initialized as MutableState).value = true
+        if (!initialized) {
+            initialized = true
             return@LaunchedEffect
         }
+
         onTranslated(state.displayText)
     }
 
