@@ -44,7 +44,7 @@ data class TranslateBtnState(
 )
 
 /**
- * Controller responsible for managing translation logic for the [Translate] composable.
+ * Controller responsible for managing translation logic for the [com.kanake10.translate_ui.ui.Translate] composable.
  *
  * Handles:
  *   Storing and resetting the source text via [setText]
