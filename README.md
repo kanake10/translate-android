@@ -1,6 +1,6 @@
 # Translate Android SDK
 
-A lightweight Android SDK for integrating powerful text translation,built on the [TranslatePlus API](https://api.translateplus.io/). Supports single text, batch texts, subtitle, email and HTML translation with an optional Jetpack Compose UI module included out of the box.
+A lightweight Android SDK for integrating powerful text translation,built on the [TranslatePlus API](https://docs.translateplus.io/). Supports single text, batch texts, subtitle, email and HTML translation with an optional Jetpack Compose UI module included out of the box.
 
 ---
 
