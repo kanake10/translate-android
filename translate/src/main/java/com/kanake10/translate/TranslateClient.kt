@@ -52,6 +52,9 @@ object TranslateClient {
     @Volatile
     private var repository: TranslateRepository? = null
 
+    @Volatile
+    private var ownedHttpClient: OkHttpClient? = null
+
     private fun getRepository(): TranslateRepository {
         return requireNotNull(repository) {
             "TranslateClient is not initialized. Call TranslateClient.initialize() in Application class."
@@ -169,28 +172,60 @@ object TranslateClient {
      */
     @JvmStatic
     fun initialize(translateConfiguration: TranslateConfiguration) {
-        val client = translateConfiguration.okHttpClient
-            ?.newBuilder()
-            ?.addInterceptor(TranslateInterceptors(translateConfiguration.apiKey))
-            ?.build()
-            ?: OkHttpClient.Builder()
-                .addInterceptor(TranslateInterceptors(translateConfiguration.apiKey))
-                .connectTimeout(translateConfiguration.timeoutSeconds, TimeUnit.SECONDS)
-                .readTimeout(translateConfiguration.timeoutSeconds, TimeUnit.SECONDS)
-                .writeTimeout(translateConfiguration.timeoutSeconds, TimeUnit.SECONDS)
-                .build()
+        if (repository != null) return
 
-        val retrofit = Retrofit.Builder()
-            .baseUrl(translateConfiguration.baseUrl)
-            .client(client)
-            .addConverterFactory(MoshiConverterFactory.create())
-            .build()
+        synchronized(this) {
+            if (repository != null) return
 
-        repository = TranslateRepositoryImpl(
-            retrofit.create(TranslateApi::class.java)
-        )
+            val userClient = translateConfiguration.okHttpClient
+            val ownedCandidate: OkHttpClient? = if (userClient == null) {
+                OkHttpClient.Builder()
+                    .addInterceptor(TranslateInterceptors(translateConfiguration.apiKey))
+                    .connectTimeout(translateConfiguration.timeoutSeconds, TimeUnit.SECONDS)
+                    .readTimeout(translateConfiguration.timeoutSeconds, TimeUnit.SECONDS)
+                    .writeTimeout(translateConfiguration.timeoutSeconds, TimeUnit.SECONDS)
+                    .build()
+            } else null
+
+            val client: OkHttpClient = userClient
+                ?.newBuilder()
+                ?.addInterceptor(TranslateInterceptors(translateConfiguration.apiKey))
+                ?.build()
+                ?: checkNotNull(ownedCandidate)
+
+            try {
+                val retrofit = Retrofit.Builder()
+                    .baseUrl(translateConfiguration.baseUrl)
+                    .client(client)
+                    .addConverterFactory(MoshiConverterFactory.create())
+                    .build()
+
+                repository = TranslateRepositoryImpl(retrofit.create(TranslateApi::class.java))
+                ownedHttpClient = ownedCandidate
+            } catch (t: Throwable) {
+                ownedCandidate?.dispatcher?.executorService?.shutdown()
+                ownedCandidate?.connectionPool?.evictAll()
+                throw t
+            }
+        }
     }
+
+    @JvmStatic
+    fun clear() {
+        synchronized(this) {
+            repository = null
+            ownedHttpClient?.apply {
+                dispatcher.executorService.shutdown()
+                connectionPool.evictAll()
+            }
+            ownedHttpClient = null
+        }
+    }
+
+    val isInitialized: Boolean
+        get() = repository != null
 }
+
 
 /**
  * Configuration object used to initialize the Translate SDK.
