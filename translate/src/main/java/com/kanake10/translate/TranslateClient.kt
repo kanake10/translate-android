@@ -178,25 +178,35 @@ object TranslateClient {
             if (repository != null) return
 
             val userClient = translateConfiguration.okHttpClient
-            val client = userClient
-                ?.newBuilder()
-                ?.addInterceptor(TranslateInterceptors(translateConfiguration.apiKey))
-                ?.build()
-                ?: OkHttpClient.Builder()
+            val ownedCandidate: OkHttpClient? = if (userClient == null) {
+                OkHttpClient.Builder()
                     .addInterceptor(TranslateInterceptors(translateConfiguration.apiKey))
                     .connectTimeout(translateConfiguration.timeoutSeconds, TimeUnit.SECONDS)
                     .readTimeout(translateConfiguration.timeoutSeconds, TimeUnit.SECONDS)
                     .writeTimeout(translateConfiguration.timeoutSeconds, TimeUnit.SECONDS)
                     .build()
-                    .also { ownedHttpClient = it }
+            } else null
 
-            val retrofit = Retrofit.Builder()
-                .baseUrl(translateConfiguration.baseUrl)
-                .client(client)
-                .addConverterFactory(MoshiConverterFactory.create())
-                .build()
+            val client: OkHttpClient = userClient
+                ?.newBuilder()
+                ?.addInterceptor(TranslateInterceptors(translateConfiguration.apiKey))
+                ?.build()
+                ?: checkNotNull(ownedCandidate)
 
-            repository = TranslateRepositoryImpl(retrofit.create(TranslateApi::class.java))
+            try {
+                val retrofit = Retrofit.Builder()
+                    .baseUrl(translateConfiguration.baseUrl)
+                    .client(client)
+                    .addConverterFactory(MoshiConverterFactory.create())
+                    .build()
+
+                repository = TranslateRepositoryImpl(retrofit.create(TranslateApi::class.java))
+                ownedHttpClient = ownedCandidate
+            } catch (t: Throwable) {
+                ownedCandidate?.dispatcher?.executorService?.shutdown()
+                ownedCandidate?.connectionPool?.evictAll()
+                throw t
+            }
         }
     }
 
