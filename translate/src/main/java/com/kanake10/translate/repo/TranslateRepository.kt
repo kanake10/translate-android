@@ -43,7 +43,7 @@ interface TranslateRepository {
      */
     suspend fun translate(
         text: String,
-        source: String = "auto",
+        source: String,
         target: String
     ): TranslateResult<Translation>
 
@@ -52,7 +52,7 @@ interface TranslateRepository {
      */
     suspend fun batchTranslate(
         texts: List<String>,
-        source: String = "auto",
+        source: String,
         target: String
     ): TranslateResult<List<BatchTranslation>>
 
