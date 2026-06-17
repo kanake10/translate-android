@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.detekt) apply false
     alias(libs.plugins.paparazzi) apply false
     alias(libs.plugins.dokka)
+    alias(libs.plugins.kotlin.android) apply false
 }
 
 subprojects {

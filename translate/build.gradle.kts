@@ -4,11 +4,15 @@ plugins {
   alias(libs.plugins.ktfmt)
   alias(libs.plugins.publish)
   alias(libs.plugins.dokka)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
   namespace = "com.kanake10.translate"
   compileSdk { version = release(36) }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 mavenPublishing {
@@ -52,8 +56,9 @@ dependencies {
   implementation(libs.retrofit.core)
   implementation(libs.retrofit.moshi)
   implementation(libs.okhttp.core)
+    implementation(libs.core.ktx)
 
-  testImplementation(libs.junit)
+    testImplementation(libs.junit)
   testImplementation(libs.mockk)
   testImplementation(libs.coroutines.test)
 }
