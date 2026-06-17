@@ -68,13 +68,12 @@ object TranslateClient {
      * @param source source language code (default: "auto")
      * @param target target language code (required)
      *
-     * @return [TranslateResult] containing either [Translation] or [TranslateError]
+     * @return [TranslateResult] containing either [Translation] or [com.kanake10.translate.util.TranslateError]
      */
-    @JvmOverloads
     @JvmStatic
     suspend fun translate(
         text: String,
-        source: String = "auto",
+        source: String,
         target: String
     ): TranslateResult<Translation> {
         return getRepository().translate(text, source, target)
@@ -89,11 +88,10 @@ object TranslateClient {
      *
      * @return [TranslateResult] containing list of [BatchTranslation]
      */
-    @JvmOverloads
     @JvmStatic
     suspend fun batchTranslate(
         texts: List<String>,
-        source: String = "auto",
+        source: String,
         target: String
     ): TranslateResult<List<BatchTranslation>> {
         return getRepository().batchTranslate(texts, source, target)
@@ -250,9 +248,9 @@ class TranslateConfiguration private constructor(
      */
     class Builder(private val apiKey: String) {
 
-        private var baseUrl: String = "https://api.translateplus.io/"
+        private var baseUrl: String = BASE_URL
         private var okHttpClient: OkHttpClient? = null
-        private var timeoutSeconds: Long = 30L
+        private var timeoutSeconds: Long = TIMEOUT
 
         fun baseUrl(url: String) = apply { baseUrl = url }
 
@@ -281,5 +279,10 @@ class TranslateConfiguration private constructor(
                 timeoutSeconds = timeoutSeconds
             )
         }
+    }
+
+    companion object{
+        const val BASE_URL = "https://api.translateplus.io/"
+        const val TIMEOUT = 30L
     }
 }

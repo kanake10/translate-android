@@ -28,25 +28,35 @@ import kotlinx.coroutines.launch
 /**
  * UI state for the translation screen.
  *
- * @param inputText Current text entered by the user.
- * @param translatedText Result of the translated text.
- * @param languages List of supported languages.
- * @param selectedSource Currently selected source language.
- * @param selectedTarget Currently selected target language.
- * @param isLoading Whether a translation request is in progress.
- * @param isLoadingLanguages Whether languages are being loaded.
- * @param error Optional error message to display.
+ * LoadingLanguages: fetching supported languages
+ * Ready: interactive translation screen
+ * Error: fatal/loading failure state
  */
-data class TranslationUiState(
-    val inputText: String = "",
-    val translatedText: String = "",
-    val languages: List<Language> = emptyList(),
-    val selectedSource: Language? = null,
-    val selectedTarget: Language? = null,
-    val isLoading: Boolean = false,
-    val isLoadingLanguages: Boolean = false,
-    val error: String? = null,
-)
+sealed interface TranslationUiState {
+
+    /** Loading supported languages */
+    data object LoadingLanguages : TranslationUiState
+
+    /**
+     * Active translation screen state
+     */
+    data class Ready(
+        val inputText: String = "",
+        val translatedText: String = "",
+        val languages: List<Language> = emptyList(),
+        val selectedSource: Language? = null,
+        val selectedTarget: Language? = null,
+        val isTranslating: Boolean = false,
+        val error: String? = null,
+    ) : TranslationUiState
+
+    /**
+     * Error state
+     */
+    data class Error(
+        val message: String
+    ) : TranslationUiState
+}
 
 /**
  * ViewModel responsible for managing translation screen state.
@@ -58,73 +68,73 @@ data class TranslationUiState(
  * - Updating UI state (loading, success, error)
  */
 internal class TranslationViewModel : ViewModel() {
-
-    private val _translateState = MutableStateFlow(TranslationUiState())
-    val uiState = _translateState.asStateFlow()
+    private val _translateState = MutableStateFlow<TranslationUiState>(TranslationUiState.LoadingLanguages)
+    val translateState = _translateState.asStateFlow()
 
     init {
         loadLanguages()
     }
 
     private fun loadLanguages() {
-        _translateState.update {
-            it.copy(isLoadingLanguages = true)
-        }
-
         viewModelScope.launch {
             when (val result = TranslateClient.getSupportedLanguages()) {
+
                 is TranslateResult.Success -> {
-                    _translateState.update {
-                        it.copy(
-                            languages = result.data,
-                            selectedSource = result.data.defaultSource(),
-                            selectedTarget = result.data.defaultTarget(),
-                            isLoadingLanguages = false,
-                        )
-                    }
+                    _translateState.value = TranslationUiState.Ready(
+                        languages = result.data,
+                        selectedSource = result.data.defaultSource(),
+                        selectedTarget = result.data.defaultTarget(),
+                    )
                 }
 
                 is TranslateResult.Error -> {
-                    _translateState.update {
-                        it.copy(
-                            isLoadingLanguages = false,
-                            error = result.error.toMessage(),
-                        )
-                    }
+                    _translateState.value = TranslationUiState.Error(
+                        message = result.error.toMessage()
+                    )
                 }
             }
         }
     }
 
     fun updateInputText(text: String) {
-        _translateState.update {
-            it.copy(
-                inputText = text,
-                error = null
-            )
+        _translateState.update { state ->
+            when (state) {
+                is TranslationUiState.Ready ->
+                    state.copy(inputText = text, error = null)
+
+                else -> state
+            }
         }
     }
 
     fun selectSource(language: Language) {
-        _translateState.update {
-            it.copy(selectedSource = language)
+        _translateState.update { state ->
+            when (state) {
+                is TranslationUiState.Ready ->
+                    state.copy(selectedSource = language)
+
+                else -> state
+            }
         }
     }
 
     fun selectTarget(language: Language) {
-        _translateState.update {
-            it.copy(selectedTarget = language)
+        _translateState.update { state ->
+            when (state) {
+                is TranslationUiState.Ready ->
+                    state.copy(selectedTarget = language)
+
+                else -> state
+            }
         }
     }
 
     fun translate() {
         val state = _translateState.value
+        if (state !is TranslationUiState.Ready) return
+        if (state.inputText.isBlank() || state.isTranslating) return
 
-        if (state.inputText.isBlank() || state.isLoading) return
-
-        _translateState.update {
-            it.copy(isLoading = true, error = null)
-        }
+        _translateState.value = state.copy(isTranslating = true)
 
         viewModelScope.launch {
             when (val result = TranslateClient.translate(
@@ -132,21 +142,22 @@ internal class TranslationViewModel : ViewModel() {
                 source = state.selectedSource?.code ?: "auto",
                 target = state.selectedTarget?.code ?: "en",
             )) {
+
                 is TranslateResult.Success -> {
                     _translateState.update {
-                        it.copy(
+                        (it as? TranslationUiState.Ready)?.copy(
                             translatedText = result.data.translatedText,
-                            isLoading = false,
-                        )
+                            isTranslating = false
+                        ) ?: it
                     }
                 }
 
                 is TranslateResult.Error -> {
                     _translateState.update {
-                        it.copy(
-                            isLoading = false,
-                            error = result.error.toMessage(),
-                        )
+                        (it as? TranslationUiState.Ready)?.copy(
+                            isTranslating = false,
+                            error = result.error.toMessage()
+                        ) ?: it
                     }
                 }
             }

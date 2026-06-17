@@ -56,6 +56,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kanake10.translate.domain.models.Language
 import com.kanake10.translate_ui.vm.TranslateController
+import com.kanake10.translate_ui.vm.TranslationUiState
 import com.kanake10.translate_ui.vm.TranslationViewModel
 
 
@@ -85,13 +86,13 @@ fun TranslationScreen(
     translateFrom: String? = null,
     translateTo: String? = null,
     headerContent: @Composable (() -> Unit)? = null,
-    translateLanguageSelector: (@Composable (
+    translateLanguageSelector: @Composable (
         languages: List<Language>,
         selectedSource: Language?,
         selectedTarget: Language?,
         onSourceSelected: (Language) -> Unit,
         onTargetSelected: (Language) -> Unit,
-    ) -> Unit)? = { languages, source, target, onSource, onTarget ->
+    ) -> Unit = { languages, source, target, onSource, onTarget ->
         TranslateLanguageSelector(languages, source, target, onSource, onTarget)
     },
     translateInputField: @Composable (
@@ -117,22 +118,7 @@ fun TranslationScreen(
 ) {
 
     val viewModel: TranslationViewModel = viewModel()
-
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    LaunchedEffect(uiState.languages) {
-        translateFrom?.let { code ->
-            uiState.languages.find { it.code == code }?.let {
-                viewModel.selectSource(it)
-            }
-        }
-
-        translateTo?.let { code ->
-            uiState.languages.find { it.code == code }?.let {
-                viewModel.selectTarget(it)
-            }
-        }
-    }
+    val translationUiState by viewModel.translateState.collectAsStateWithLifecycle()
 
     Column(
         modifier = modifier
@@ -143,39 +129,65 @@ fun TranslationScreen(
 
         headerContent?.let {
             it()
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(Modifier.height(12.dp))
         }
 
-        translateLanguageSelector?.invoke(
-            uiState.languages,
-            uiState.selectedSource,
-            uiState.selectedTarget,
-            viewModel::selectSource,
-            viewModel::selectTarget,
-        )
+        when (val state = translationUiState) {
 
-        Spacer(modifier = Modifier.height(16.dp))
+            is TranslationUiState.Error -> {
+                translateErrorContent(state.message)
+            }
 
-        translateInputField(
-            uiState.inputText,
-            viewModel::updateInputText,
-        )
+            is TranslationUiState.Ready -> {
 
-        Spacer(modifier = Modifier.height(16.dp))
+                LaunchedEffect(state.languages) {
+                    translateFrom?.let { code ->
+                        state.languages.find { it.code == code }?.let {
+                            viewModel.selectSource(it)
+                        }
+                    }
 
-        translationContent(uiState.translatedText)
+                    translateTo?.let { code ->
+                        state.languages.find { it.code == code }?.let {
+                            viewModel.selectTarget(it)
+                        }
+                    }
+                }
 
-        Spacer(modifier = Modifier.height(16.dp))
+                translateLanguageSelector(
+                    state.languages,
+                    state.selectedSource,
+                    state.selectedTarget,
+                    viewModel::selectSource,
+                    viewModel::selectTarget,
+                )
 
-        uiState.error?.let {
-            translateErrorContent(it)
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(Modifier.height(16.dp))
+
+                translateInputField(
+                    state.inputText,
+                    viewModel::updateInputText,
+                )
+
+                Spacer(Modifier.height(16.dp))
+
+                translationContent(state.translatedText)
+
+                Spacer(Modifier.height(16.dp))
+
+                if (state.error != null) {
+                    translateErrorContent(state.error)
+                    Spacer(Modifier.height(12.dp))
+                }
+
+                translateButton(
+                    state.isTranslating,
+                    viewModel::translate,
+                )
+            }
+
+            else -> {}
         }
-
-        translateButton(
-            uiState.isLoading,
-            viewModel::translate,
-        )
     }
 }
 
@@ -202,18 +214,20 @@ internal fun TranslateLanguageSelector(
             modifier = Modifier.weight(1f)
         ) {
 
-            OutlinedTextField(
-                value = selectedSource?.name ?: "Auto Detect",
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("From") },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = sourceExpanded)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
-            )
+            selectedSource?.name?.let {
+                OutlinedTextField(
+                    value = it,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("From") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = sourceExpanded)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                )
+            }
 
             ExposedDropdownMenu(
                 expanded = sourceExpanded,
@@ -239,18 +253,20 @@ internal fun TranslateLanguageSelector(
             modifier = Modifier.weight(1f)
         ) {
 
-            OutlinedTextField(
-                value = selectedTarget?.name ?: "English",
-                onValueChange = {},
-                readOnly = true,
-                label = { Text("To") },
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = targetExpanded)
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
-            )
+            selectedTarget?.name?.let {
+                OutlinedTextField(
+                    value = it,
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text("To") },
+                    trailingIcon = {
+                        ExposedDropdownMenuDefaults.TrailingIcon(expanded = targetExpanded)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .menuAnchor(MenuAnchorType.PrimaryNotEditable, true)
+                )
+            }
 
             ExposedDropdownMenu(
                 expanded = targetExpanded,

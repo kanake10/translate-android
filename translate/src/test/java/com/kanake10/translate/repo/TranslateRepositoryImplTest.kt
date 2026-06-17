@@ -30,7 +30,9 @@ class TranslateRepositoryImplTest : BaseTest() {
 
     @Test
     fun translate_returns_error_when_text_is_blank() = runTest {
-        val result = repository.translate("", target = "fr")
+        val result = repository.translate(
+            "", target = "fr", source = "auto"
+        )
         assertTrue(result is TranslateResult.Error)
         coVerify(exactly = 0) { api.translate(any()) }
     }
@@ -66,7 +68,7 @@ class TranslateRepositoryImplTest : BaseTest() {
 
     @Test
     fun batchTranslate_returns_error_when_empty_list() = runTest {
-        val result = repository.batchTranslate(emptyList(), target = "fr")
+        val result = repository.batchTranslate(emptyList(), target = "fr", source = "auto")
         assertTrue(result is TranslateResult.Error)
         coVerify(exactly = 0) { api.batchTranslate(any()) }
     }
