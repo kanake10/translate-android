@@ -2,6 +2,7 @@ plugins {
   alias(libs.plugins.android.library)
   alias(libs.plugins.ksp)
   alias(libs.plugins.ktfmt)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -19,11 +20,15 @@ android {
       proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
     }
   }
+    kotlinOptions {
+        jvmTarget = "1.8"
+    }
 }
 
 dependencies {
   implementation(libs.room.runtime)
-  ksp(libs.room.compiler)
+    implementation(libs.core.ktx)
+    ksp(libs.room.compiler)
   implementation(libs.room.ktx)
   implementation(libs.coroutines.android)
 }

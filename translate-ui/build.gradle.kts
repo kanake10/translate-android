@@ -5,6 +5,8 @@ plugins {
   alias(libs.plugins.ktfmt)
   alias(libs.plugins.publish)
   alias(libs.plugins.dokka)
+  alias(libs.plugins.paparazzi)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -30,6 +32,9 @@ android {
     sourceCompatibility = JavaVersion.VERSION_11
     targetCompatibility = JavaVersion.VERSION_11
   }
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }
 
 mavenPublishing {
@@ -82,4 +87,6 @@ dependencies {
   implementation(libs.androidx.compose.material3)
   implementation(libs.androidx.lifecycle.viewmodel.compose)
   api(project(":translate"))
+    implementation(libs.google.testparameterinjector)
+    implementation(libs.core.ktx)
 }
