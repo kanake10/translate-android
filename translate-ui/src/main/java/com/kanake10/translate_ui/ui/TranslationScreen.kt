@@ -133,7 +133,7 @@ fun TranslationScreen(
 
         is TranslationUiState.Ready -> {
 
-            LaunchedEffect(state.languages) {
+            LaunchedEffect(state.languages, translateFrom, translateTo) {
                 translateFrom?.let { code ->
                     state.languages.find { it.code == code }?.let {
                         viewModel.selectSource(it)

@@ -1,92 +1,84 @@
 plugins {
-  alias(libs.plugins.android.library)
-  alias(libs.plugins.kotlin.compose)
-  alias(libs.plugins.metalava)
-  alias(libs.plugins.ktfmt)
-  alias(libs.plugins.publish)
-  alias(libs.plugins.dokka)
-  alias(libs.plugins.paparazzi)
+    alias(libs.plugins.android.library)
+    alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.metalava)
+    alias(libs.plugins.ktfmt)
+    alias(libs.plugins.publish)
+    alias(libs.plugins.dokka)
+    alias(libs.plugins.paparazzi)
     alias(libs.plugins.kotlin.android)
 }
 
 android {
-  namespace = "com.kanake10.translate_ui"
-  compileSdk { version = release(36) }
+    namespace = "com.kanake10.translate_ui"
+    compileSdk { version = release(36) }
 
-  defaultConfig {
-    minSdk = 24
-
-    testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    consumerProguardFiles("consumer-rules.pro")
-  }
-
-  buildFeatures { compose = true }
-
-  buildTypes {
-    release {
-      isMinifyEnabled = false
-      proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+    defaultConfig {
+        minSdk = 24
     }
-  }
-  compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
-  }
+
+    buildFeatures { compose = true }
+
+    compileOptions {
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
+    }
     kotlinOptions {
-        jvmTarget = "11"
+        jvmTarget = "17"
     }
 }
 
 mavenPublishing {
-  publishToMavenCentral()
-  signAllPublications()
+    publishToMavenCentral()
+    signAllPublications()
 
-  coordinates(groupId = "io.github.kanake10", artifactId = "translate-ui", version = "1.2.0")
+    coordinates(groupId = "io.github.kanake10", artifactId = "translate-ui", version = "1.2.0")
 
-  pom {
-    name.set("Translate UI")
-    description.set("Compose UI for Translate SDK")
-    url.set("https://github.com/kanake10/translate-android")
+    pom {
+        name.set("Translate UI")
+        description.set("Compose UI for Translate SDK")
+        url.set("https://github.com/kanake10/translate-android")
 
-    licenses {
-      license {
-        name.set("Apache-2.0")
-        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-      }
+        licenses {
+            license {
+                name.set("Apache-2.0")
+                url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+            }
+        }
+
+        developers {
+            developer {
+                id.set("kanake10")
+                name.set("Ezra Kanake")
+                url.set("https://github.com/kanake10")
+            }
+        }
+
+        scm {
+            url.set("https://github.com/kanake10/translate-android")
+            connection.set("scm:git:git://github.com/kanake10/translate-android.git")
+            developerConnection.set("scm:git:ssh://git@github.com/kanake10/translate-android.git")
+        }
     }
-
-    developers {
-      developer {
-        id.set("kanake10")
-        name.set("Ezra Kanake")
-        url.set("https://github.com/kanake10")
-      }
-    }
-
-    scm {
-      url.set("https://github.com/kanake10/translate-android")
-      connection.set("scm:git:git://github.com/kanake10/translate-android.git")
-      developerConnection.set("scm:git:ssh://git@github.com/kanake10/translate-android.git")
-    }
-  }
 }
 
 metalava {
-  filename = "api/$name-api.txt"
-  apiCompatAnnotations = listOf("androidx.compose.runtime.Composable")
+    filename = "api/$name-api.txt"
+    apiCompatAnnotations = listOf("androidx.compose.runtime.Composable")
 }
 
 dependencies {
-  implementation(libs.androidx.core.ktx)
-  implementation(libs.androidx.lifecycle.runtime.ktx)
-  implementation(libs.androidx.activity.compose)
-  implementation(platform(libs.androidx.compose.bom))
-  implementation(libs.androidx.compose.ui)
-  implementation(libs.androidx.compose.ui.graphics)
-  implementation(libs.androidx.compose.ui.tooling.preview)
-  implementation(libs.androidx.compose.material3)
-  implementation(libs.androidx.lifecycle.viewmodel.compose)
-  api(project(":translate"))
-    implementation(libs.google.testparameterinjector)
+    api(platform(libs.androidx.compose.bom))
+    api(libs.androidx.compose.ui)
+    api(libs.androidx.compose.material3)
+    api(libs.androidx.lifecycle.viewmodel.compose)
+    api(project(":translate"))
+
+    implementation(libs.androidx.activity.compose)
+    implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.core.ktx)
+    testImplementation(libs.google.testparameterinjector)
+
+    debugImplementation(libs.androidx.compose.ui.tooling.preview)
+    debugImplementation(libs.androidx.compose.ui.tooling)
 }
