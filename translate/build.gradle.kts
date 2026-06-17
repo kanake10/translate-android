@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.ktfmt)
     alias(libs.plugins.publish)
     alias(libs.plugins.dokka)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -17,6 +18,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
 
@@ -60,7 +64,7 @@ dependencies {
     api(libs.okhttp.core)
     implementation(libs.retrofit.core)
     implementation(libs.retrofit.moshi)
-    implementation(libs.androidx.core.ktx)
+    implementation(libs.core.ktx)
 
     testImplementation(libs.junit)
     testImplementation(libs.mockk)

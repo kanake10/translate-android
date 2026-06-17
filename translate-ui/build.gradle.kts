@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.publish)
     alias(libs.plugins.dokka)
     alias(libs.plugins.paparazzi)
+    alias(libs.plugins.kotlin.android)
 }
 
 android {
@@ -21,6 +22,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
+    }
+    kotlinOptions {
+        jvmTarget = "17"
     }
 }
 
@@ -70,9 +74,9 @@ dependencies {
     api(libs.androidx.lifecycle.viewmodel.compose)
     api(project(":translate"))
 
-    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.core.ktx)
     testImplementation(libs.google.testparameterinjector)
 
     debugImplementation(libs.androidx.compose.ui.tooling.preview)
