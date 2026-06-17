@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.kover) apply false
     alias(libs.plugins.spotless)
     alias(libs.plugins.detekt) apply false
+    alias(libs.plugins.paparazzi) apply false
     alias(libs.plugins.dokka)
 }
 

@@ -5,6 +5,7 @@ plugins {
   alias(libs.plugins.ktfmt)
   alias(libs.plugins.publish)
   alias(libs.plugins.dokka)
+  alias(libs.plugins.paparazzi)
 }
 
 android {
@@ -82,4 +83,5 @@ dependencies {
   implementation(libs.androidx.compose.material3)
   implementation(libs.androidx.lifecycle.viewmodel.compose)
   api(project(":translate"))
+    implementation(libs.google.testparameterinjector)
 }

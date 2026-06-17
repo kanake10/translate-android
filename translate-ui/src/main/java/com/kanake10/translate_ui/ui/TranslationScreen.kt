@@ -93,7 +93,13 @@ fun TranslationScreen(
         onSourceSelected: (Language) -> Unit,
         onTargetSelected: (Language) -> Unit,
     ) -> Unit = { languages, source, target, onSource, onTarget ->
-        TranslateLanguageSelector(languages, source, target, onSource, onTarget)
+        TranslateLanguageSelector(
+            languages,
+            source,
+            target,
+            onSource,
+            onTarget,
+        )
     },
     translateInputField: @Composable (
         text: String,
@@ -116,10 +122,96 @@ fun TranslationScreen(
         TranslateErrorContent(error)
     },
 ) {
-
     val viewModel: TranslationViewModel = viewModel()
     val translationUiState by viewModel.translateState.collectAsStateWithLifecycle()
 
+    when (val state = translationUiState) {
+
+        is TranslationUiState.Error -> {
+            translateErrorContent(state.message)
+        }
+
+        is TranslationUiState.Ready -> {
+
+            LaunchedEffect(state.languages) {
+                translateFrom?.let { code ->
+                    state.languages.find { it.code == code }?.let {
+                        viewModel.selectSource(it)
+                    }
+                }
+
+                translateTo?.let { code ->
+                    state.languages.find { it.code == code }?.let {
+                        viewModel.selectTarget(it)
+                    }
+                }
+            }
+
+            TranslationScreenContent(
+                modifier = modifier,
+                state = state,
+                headerContent = headerContent,
+                onSourceSelected = viewModel::selectSource,
+                onTargetSelected = viewModel::selectTarget,
+                onInputTextChanged = viewModel::updateInputText,
+                onTranslateClick = viewModel::translate,
+                translateLanguageSelector = translateLanguageSelector,
+                translateInputField = translateInputField,
+                translationContent = translationContent,
+                translateButton = translateButton,
+                translateErrorContent = translateErrorContent,
+            )
+        }
+
+        else -> Unit
+    }
+}
+
+@Composable
+internal fun TranslationScreenContent(
+    state: TranslationUiState.Ready,
+    modifier: Modifier = Modifier,
+    headerContent: @Composable (() -> Unit)? = null,
+    onSourceSelected: (Language) -> Unit = {},
+    onTargetSelected: (Language) -> Unit = {},
+    onInputTextChanged: (String) -> Unit = {},
+    onTranslateClick: () -> Unit = {},
+    translateLanguageSelector: @Composable (
+        languages: List<Language>,
+        selectedSource: Language?,
+        selectedTarget: Language?,
+        onSourceSelected: (Language) -> Unit,
+        onTargetSelected: (Language) -> Unit,
+    ) -> Unit = { languages, source, target, onSource, onTarget ->
+        TranslateLanguageSelector(
+            languages,
+            source,
+            target,
+            onSource,
+            onTarget,
+        )
+    },
+    translateInputField: @Composable (
+        text: String,
+        onTextChange: (String) -> Unit,
+    ) -> Unit = { text, onChange ->
+        TranslateInputField(text, onChange)
+    },
+    translationContent: @Composable (
+        translatedText: String,
+    ) -> Unit = { translated ->
+        TranslationContent(translated)
+    },
+    translateButton: @Composable (
+        isLoading: Boolean,
+        onClick: () -> Unit,
+    ) -> Unit = { isLoading, onClick ->
+        TranslateButton(isLoading, onClick)
+    },
+    translateErrorContent: @Composable (String) -> Unit = { error ->
+        TranslateErrorContent(error)
+    },
+) {
     Column(
         modifier = modifier
             .fillMaxSize()
@@ -132,62 +224,38 @@ fun TranslationScreen(
             Spacer(Modifier.height(12.dp))
         }
 
-        when (val state = translationUiState) {
+        translateLanguageSelector(
+            state.languages,
+            state.selectedSource,
+            state.selectedTarget,
+            onSourceSelected,
+            onTargetSelected,
+        )
 
-            is TranslationUiState.Error -> {
-                translateErrorContent(state.message)
-            }
+        Spacer(Modifier.height(16.dp))
 
-            is TranslationUiState.Ready -> {
+        translateInputField(
+            state.inputText,
+            onInputTextChanged,
+        )
 
-                LaunchedEffect(state.languages) {
-                    translateFrom?.let { code ->
-                        state.languages.find { it.code == code }?.let {
-                            viewModel.selectSource(it)
-                        }
-                    }
+        Spacer(Modifier.height(16.dp))
 
-                    translateTo?.let { code ->
-                        state.languages.find { it.code == code }?.let {
-                            viewModel.selectTarget(it)
-                        }
-                    }
-                }
+        translationContent(
+            state.translatedText,
+        )
 
-                translateLanguageSelector(
-                    state.languages,
-                    state.selectedSource,
-                    state.selectedTarget,
-                    viewModel::selectSource,
-                    viewModel::selectTarget,
-                )
+        Spacer(Modifier.height(16.dp))
 
-                Spacer(Modifier.height(16.dp))
-
-                translateInputField(
-                    state.inputText,
-                    viewModel::updateInputText,
-                )
-
-                Spacer(Modifier.height(16.dp))
-
-                translationContent(state.translatedText)
-
-                Spacer(Modifier.height(16.dp))
-
-                if (state.error != null) {
-                    translateErrorContent(state.error)
-                    Spacer(Modifier.height(12.dp))
-                }
-
-                translateButton(
-                    state.isTranslating,
-                    viewModel::translate,
-                )
-            }
-
-            else -> {}
+        state.error?.let {
+            translateErrorContent(it)
+            Spacer(Modifier.height(12.dp))
         }
+
+        translateButton(
+            state.isTranslating,
+            onTranslateClick,
+        )
     }
 }
 
