@@ -71,6 +71,7 @@ dependencies {
     api(platform(libs.androidx.compose.bom))
     api(libs.androidx.compose.ui)
     api(libs.androidx.compose.material3)
+    implementation(libs.androidx.compose.material.icons.extended)
     api(libs.androidx.lifecycle.viewmodel.compose)
     api(project(":translate"))
 

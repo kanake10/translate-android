@@ -15,6 +15,7 @@
  */
 package com.kanake10.translate_ui.ui
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -30,12 +31,17 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Check
+import androidx.compose.material.icons.outlined.ContentCopy
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.MenuAnchorType
@@ -49,7 +55,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -58,6 +67,7 @@ import com.kanake10.translate.domain.models.Language
 import com.kanake10.translate_ui.vm.TranslateController
 import com.kanake10.translate_ui.vm.TranslationUiState
 import com.kanake10.translate_ui.vm.TranslationViewModel
+import kotlinx.coroutines.delay
 
 
 /**
@@ -110,7 +120,7 @@ fun TranslationScreen(
     translationContent: @Composable (
         translatedText: String,
     ) -> Unit = { translated ->
-        TranslationContent(translated)
+        TranslationContent(text = translated)
     },
     translateButton: @Composable (
         isLoading: Boolean,
@@ -200,7 +210,7 @@ internal fun TranslationScreenContent(
     translationContent: @Composable (
         translatedText: String,
     ) -> Unit = { translated ->
-        TranslationContent(translated)
+        TranslationContent(text = translated)
     },
     translateButton: @Composable (
         isLoading: Boolean,
@@ -213,12 +223,11 @@ internal fun TranslationScreenContent(
     },
 ) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
     ) {
-
         headerContent?.let {
             it()
             Spacer(Modifier.height(12.dp))
@@ -233,17 +242,10 @@ internal fun TranslationScreenContent(
         )
 
         Spacer(Modifier.height(16.dp))
-
-        translateInputField(
-            state.inputText,
-            onInputTextChanged,
-        )
-
+        translateInputField(state.inputText, onInputTextChanged)
         Spacer(Modifier.height(16.dp))
 
-        translationContent(
-            state.translatedText,
-        )
+        translationContent(state.translatedText)
 
         Spacer(Modifier.height(16.dp))
 
@@ -252,10 +254,7 @@ internal fun TranslationScreenContent(
             Spacer(Modifier.height(12.dp))
         }
 
-        translateButton(
-            state.isTranslating,
-            onTranslateClick,
-        )
+        translateButton(state.isTranslating, onTranslateClick)
     }
 }
 
@@ -385,9 +384,33 @@ internal fun TranslateInputField(
 
 @Composable
 internal fun TranslationContent(
-    text: String
+    text: String,
+    copyEnabled: Boolean = true,
+    onCopied: () -> Unit = {},
+    copyIcon: @Composable (copied: Boolean) -> Unit = { copied ->
+        Icon(
+            imageVector = if (copied) Icons.Outlined.Check else Icons.Outlined.ContentCopy,
+            contentDescription = if (copied) "Copied" else "Copy translation",
+            modifier = Modifier.size(16.dp),
+            tint = if (copied) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            },
+        )
+    },
 ) {
     if (text.isNotEmpty()) {
+        val clipboardManager = LocalClipboardManager.current
+        var copied by remember { mutableStateOf(false) }
+
+        LaunchedEffect(copied) {
+            if (copied) {
+                delay(2_000)
+                copied = false
+            }
+        }
+
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -398,21 +421,44 @@ internal fun TranslationContent(
                 )
                 .padding(12.dp)
         ) {
-            Text(
-                text = "Translation",
-                style = MaterialTheme.typography.titleMedium
-            )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    text = "Translation",
+                    style = MaterialTheme.typography.titleMedium,
+                )
+
+                if (copyEnabled) {
+                    IconButton(
+                        onClick = {
+                            clipboardManager.setText(AnnotatedString(text))
+                            copied = true
+                            onCopied()
+                        },
+                        modifier = Modifier.size(22.dp),
+                    ) {
+                        Crossfade(
+                            targetState = copied,
+                            label = "copy_icon",
+                        ) { isCopied ->
+                            copyIcon(isCopied)
+                        }
+                    }
+                }
+            }
 
             Spacer(modifier = Modifier.height(6.dp))
 
             Text(
                 text = text,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
             )
         }
     }
 }
-
 @Composable
 internal fun TranslateButton(
     isLoading: Boolean,
