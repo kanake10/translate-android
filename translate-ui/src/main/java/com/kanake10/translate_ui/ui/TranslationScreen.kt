@@ -223,7 +223,7 @@ internal fun TranslationScreenContent(
     },
 ) {
     Column(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
