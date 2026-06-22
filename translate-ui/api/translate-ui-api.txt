@@ -3,7 +3,7 @@ package com.kanake10.translate_ui.ui {
 
   public final class TranslationScreenKt {
     method @KotlinOnly @androidx.compose.runtime.Composable public static void Translate(String text, optional androidx.compose.ui.Modifier modifier, optional androidx.compose.ui.text.TextStyle textStyle, optional kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> onTranslated, optional kotlin.jvm.functions.Function3<java.lang.Boolean,java.lang.Boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> button);
-    method @KotlinOnly @androidx.compose.runtime.Composable public static void TranslationScreen(optional androidx.compose.ui.Modifier modifier, optional String? translateFrom, optional String? translateTo, optional kotlin.jvm.functions.Function0<kotlin.Unit>? headerContent, optional kotlin.jvm.functions.Function5<java.util.List<com.kanake10.translate.domain.models.Language>,com.kanake10.translate.domain.models.Language?,com.kanake10.translate.domain.models.Language?,kotlin.jvm.functions.Function1<com.kanake10.translate.domain.models.Language,kotlin.Unit>,kotlin.jvm.functions.Function1<com.kanake10.translate.domain.models.Language,kotlin.Unit>,kotlin.Unit>? translateLanguageSelector, optional kotlin.jvm.functions.Function2<java.lang.String,kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit>,kotlin.Unit> translateInputField, optional kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> translationContent, optional kotlin.jvm.functions.Function2<java.lang.Boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> translateButton, optional kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> translateErrorContent);
+    method @KotlinOnly @androidx.compose.runtime.Composable public static void TranslationScreen(optional androidx.compose.ui.Modifier modifier, optional String? translateFrom, optional String? translateTo, optional kotlin.jvm.functions.Function0<kotlin.Unit>? headerContent, optional kotlin.jvm.functions.Function5<java.util.List<com.kanake10.translate.domain.models.Language>,com.kanake10.translate.domain.models.Language?,com.kanake10.translate.domain.models.Language?,kotlin.jvm.functions.Function1<com.kanake10.translate.domain.models.Language,kotlin.Unit>,kotlin.jvm.functions.Function1<com.kanake10.translate.domain.models.Language,kotlin.Unit>,kotlin.Unit> translateLanguageSelector, optional kotlin.jvm.functions.Function2<java.lang.String,kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit>,kotlin.Unit> translateInputField, optional kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> translationContent, optional kotlin.jvm.functions.Function2<java.lang.Boolean,kotlin.jvm.functions.Function0<kotlin.Unit>,kotlin.Unit> translateButton, optional kotlin.jvm.functions.Function1<java.lang.String,kotlin.Unit> translateErrorContent);
   }
 
 }
@@ -34,30 +34,42 @@ package com.kanake10.translate_ui.vm {
     property public String targetLanguage;
   }
 
-  public final class TranslationUiState {
-    ctor public TranslationUiState();
-    ctor public TranslationUiState(optional String inputText, optional String translatedText, optional java.util.List<com.kanake10.translate.domain.models.Language> languages, optional com.kanake10.translate.domain.models.Language? selectedSource, optional com.kanake10.translate.domain.models.Language? selectedTarget, optional boolean isLoading, optional boolean isLoadingLanguages, optional String? error);
+  public sealed exhaustive interface TranslationUiState {
+  }
+
+  public static final class TranslationUiState.Error implements com.kanake10.translate_ui.vm.TranslationUiState {
+    ctor public TranslationUiState.Error(String message);
+    method public String component1();
+    method public com.kanake10.translate_ui.vm.TranslationUiState.Error copy(optional String message);
+    method @InaccessibleFromKotlin public String getMessage();
+    property public String message;
+  }
+
+  public static final class TranslationUiState.LoadingLanguages implements com.kanake10.translate_ui.vm.TranslationUiState {
+    field public static final com.kanake10.translate_ui.vm.TranslationUiState.LoadingLanguages INSTANCE;
+  }
+
+  public static final class TranslationUiState.Ready implements com.kanake10.translate_ui.vm.TranslationUiState {
+    ctor public TranslationUiState.Ready();
+    ctor public TranslationUiState.Ready(optional String inputText, optional String translatedText, optional java.util.List<com.kanake10.translate.domain.models.Language> languages, optional com.kanake10.translate.domain.models.Language? selectedSource, optional com.kanake10.translate.domain.models.Language? selectedTarget, optional boolean isTranslating, optional String? error);
     method public String component1();
     method public String component2();
     method public java.util.List<com.kanake10.translate.domain.models.Language> component3();
     method public com.kanake10.translate.domain.models.Language? component4();
     method public com.kanake10.translate.domain.models.Language? component5();
     method public boolean component6();
-    method public boolean component7();
-    method public String? component8();
-    method public com.kanake10.translate_ui.vm.TranslationUiState copy(optional String inputText, optional String translatedText, optional java.util.List<com.kanake10.translate.domain.models.Language> languages, optional com.kanake10.translate.domain.models.Language? selectedSource, optional com.kanake10.translate.domain.models.Language? selectedTarget, optional boolean isLoading, optional boolean isLoadingLanguages, optional String? error);
+    method public String? component7();
+    method public com.kanake10.translate_ui.vm.TranslationUiState.Ready copy(optional String inputText, optional String translatedText, optional java.util.List<com.kanake10.translate.domain.models.Language> languages, optional com.kanake10.translate.domain.models.Language? selectedSource, optional com.kanake10.translate.domain.models.Language? selectedTarget, optional boolean isTranslating, optional String? error);
     method @InaccessibleFromKotlin public String? getError();
     method @InaccessibleFromKotlin public String getInputText();
     method @InaccessibleFromKotlin public java.util.List<com.kanake10.translate.domain.models.Language> getLanguages();
     method @InaccessibleFromKotlin public com.kanake10.translate.domain.models.Language? getSelectedSource();
     method @InaccessibleFromKotlin public com.kanake10.translate.domain.models.Language? getSelectedTarget();
     method @InaccessibleFromKotlin public String getTranslatedText();
-    method @InaccessibleFromKotlin public boolean isLoading();
-    method @InaccessibleFromKotlin public boolean isLoadingLanguages();
+    method @InaccessibleFromKotlin public boolean isTranslating();
     property public String? error;
     property public String inputText;
-    property public boolean isLoading;
-    property public boolean isLoadingLanguages;
+    property public boolean isTranslating;
     property public java.util.List<com.kanake10.translate.domain.models.Language> languages;
     property public com.kanake10.translate.domain.models.Language? selectedSource;
     property public com.kanake10.translate.domain.models.Language? selectedTarget;

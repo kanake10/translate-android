@@ -2,16 +2,17 @@
 package com.kanake10.translate {
 
   public final class TranslateClient {
-    method public static suspend Object? batchTranslate(java.util.List<java.lang.String> texts, optional String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<? extends java.util.List<com.kanake10.translate.domain.models.BatchTranslation>>>);
-    method public static suspend Object? batchTranslate(java.util.List<java.lang.String> texts, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<? extends java.util.List<com.kanake10.translate.domain.models.BatchTranslation>>>);
+    method public static suspend Object? batchTranslate(java.util.List<java.lang.String> texts, String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<? extends java.util.List<com.kanake10.translate.domain.models.BatchTranslation>>>);
     method public static suspend Object? checkHealth(kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.HealthStatus>>);
+    method public static void clear();
     method public static suspend Object? getSupportedLanguages(kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<? extends java.util.List<com.kanake10.translate.domain.models.Language>>>);
     method public static void initialize(com.kanake10.translate.TranslateConfiguration translateConfiguration);
-    method public static suspend Object? translate(String text, optional String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.Translation>>);
-    method public static suspend Object? translate(String text, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.Translation>>);
+    method @InaccessibleFromKotlin public boolean isInitialized();
+    method public static suspend Object? translate(String text, String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.Translation>>);
     method public static suspend Object? translateEmail(com.kanake10.translate.domain.models.email.EmailRequest request, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.email.EmailResult>>);
     method public static suspend Object? translateHtml(com.kanake10.translate.domain.models.html.HtmlRequest request, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.html.HtmlResult>>);
     method public static suspend Object? translateSubtitles(com.kanake10.translate.domain.models.subtitles.SubtitleRequest request, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.subtitles.SubtitleResult>>);
+    property public boolean isInitialized;
     field public static final com.kanake10.translate.TranslateClient INSTANCE;
   }
 
@@ -24,6 +25,9 @@ package com.kanake10.translate {
     property public String baseUrl;
     property public okhttp3.OkHttpClient? okHttpClient;
     property public long timeoutSeconds;
+    field public static final String BASE_URL = "https://api.translateplus.io/";
+    field public static final com.kanake10.translate.TranslateConfiguration.Companion Companion;
+    field public static final long TIMEOUT = 30L; // 0x1eL
   }
 
   public static final class TranslateConfiguration.Builder {
@@ -32,6 +36,11 @@ package com.kanake10.translate {
     method public com.kanake10.translate.TranslateConfiguration build();
     method public com.kanake10.translate.TranslateConfiguration.Builder okHttpClient(okhttp3.OkHttpClient client);
     method public com.kanake10.translate.TranslateConfiguration.Builder timeoutSeconds(long seconds);
+  }
+
+  public static final class TranslateConfiguration.Companion {
+    property public static String BASE_URL;
+    property public static long TIMEOUT;
   }
 
 }
@@ -195,10 +204,10 @@ package com.kanake10.translate.domain.models.subtitles {
 package com.kanake10.translate.repo {
 
   public interface TranslateRepository {
-    method public suspend Object? batchTranslate(java.util.List<java.lang.String> texts, optional String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<? extends java.util.List<com.kanake10.translate.domain.models.BatchTranslation>>>);
+    method public suspend Object? batchTranslate(java.util.List<java.lang.String> texts, String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<? extends java.util.List<com.kanake10.translate.domain.models.BatchTranslation>>>);
     method public suspend Object? checkHealth(kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.HealthStatus>>);
     method public suspend Object? getSupportedLanguages(kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<? extends java.util.List<com.kanake10.translate.domain.models.Language>>>);
-    method public suspend Object? translate(String text, optional String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.Translation>>);
+    method public suspend Object? translate(String text, String source, String target, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.Translation>>);
     method public suspend Object? translateEmail(com.kanake10.translate.domain.models.email.EmailRequest request, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.email.EmailResult>>);
     method public suspend Object? translateHtml(com.kanake10.translate.domain.models.html.HtmlRequest request, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.html.HtmlResult>>);
     method public suspend Object? translateSubtitles(com.kanake10.translate.domain.models.subtitles.SubtitleRequest request, kotlin.coroutines.Continuation<? super com.kanake10.translate.util.TranslateResult<com.kanake10.translate.domain.models.subtitles.SubtitleResult>>);
