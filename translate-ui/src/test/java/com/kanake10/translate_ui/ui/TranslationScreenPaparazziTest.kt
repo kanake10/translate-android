@@ -169,6 +169,22 @@ class TranslationScreenPaparazziTest : BasePaparazziTest() {
     }
 
     @Test
+    fun translationScreenWithoutContentCopyIcon() {
+        snapshot {
+            TranslationScreenContent(
+                state = readyState,
+                translationContent = { translated ->
+                    TranslationContent(
+                        text = translated,
+                        copyEnabled = false,
+                    )
+                }
+            )
+        }
+    }
+
+
+    @Test
     fun translateComposable() {
         snapshot {
             Translate(

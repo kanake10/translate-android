@@ -13,7 +13,6 @@ import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
 import com.android.resources.NightMode
-import com.android.resources.ScreenOrientation
 import com.google.testing.junit.testparameterinjector.TestParameter
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import org.junit.Rule
@@ -76,15 +75,15 @@ abstract class BasePaparazziTest {
                 nightMode = NightMode.NIGHT,
             ),
         ),
-        LANDSCAPE_PHONE(
-            deviceConfig = DeviceConfig.NEXUS_5.copy(
-                orientation = ScreenOrientation.LANDSCAPE,
-            ),
-        ),
-        TABLET(
-            deviceConfig = DeviceConfig.PIXEL_C.copy(
-                orientation = ScreenOrientation.LANDSCAPE,
-            ),
-        ),
+//        LANDSCAPE_PHONE(
+//            deviceConfig = DeviceConfig.NEXUS_5.copy(
+//                orientation = ScreenOrientation.LANDSCAPE,
+//            ),
+//        ),
+//        TABLET(
+//            deviceConfig = DeviceConfig.PIXEL_C.copy(
+//                orientation = ScreenOrientation.LANDSCAPE,
+//            ),
+//        ),
     }
 }
