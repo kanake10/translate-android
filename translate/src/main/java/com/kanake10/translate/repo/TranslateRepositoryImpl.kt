@@ -43,14 +43,18 @@ internal class TranslateRepositoryImpl(
         source: String,
         target: String,
     ): TranslateResult<Translation> {
-        if (text.isBlank()) return TranslateResult.Error(
-            TranslateError.BadRequest("Text must not be blank")
-        )
-        if (text.length > 5000) return TranslateResult.Error(
-            TranslateError.BadRequest("Text must not exceed 5000 characters")
-        )
-        return safeApiCall {
-            api.translate(TranslateRequest(text, source, target)).translations.toDomain()
+        return when {
+            text.isBlank() -> TranslateResult.Error(
+                TranslateError.BadRequest("Text must not be blank")
+            )
+
+            text.length > MAX_TEXT_LENGTH -> TranslateResult.Error(
+                TranslateError.BadRequest("Text must not exceed 5000 characters")
+            )
+
+            else -> safeApiCall {
+                api.translate(TranslateRequest(text, source, target)).translations.toDomain()
+            }
         }
     }
 
@@ -59,15 +63,19 @@ internal class TranslateRepositoryImpl(
         source: String,
         target: String,
     ): TranslateResult<List<BatchTranslation>> {
-        if (texts.isEmpty()) return TranslateResult.Error(
-            TranslateError.BadRequest("Texts list must not be empty")
-        )
-        if (texts.size > 100) return TranslateResult.Error(
-            TranslateError.BadRequest("Batch size must not exceed 100 texts")
-        )
-        return safeApiCall {
-            api.batchTranslate(BatchTranslateRequest(texts, source, target))
-                .translations.map { it.toDomain() }
+        return when {
+            texts.isEmpty() -> TranslateResult.Error(
+                TranslateError.BadRequest("Texts list must not be empty")
+            )
+
+            texts.size > MAX_BATCH_SIZE -> TranslateResult.Error(
+                TranslateError.BadRequest("Batch size must not exceed 100 texts")
+            )
+
+            else -> safeApiCall {
+                api.batchTranslate(BatchTranslateRequest(texts, source, target))
+                    .translations.map { it.toDomain() }
+            }
         }
     }
 
@@ -75,14 +83,14 @@ internal class TranslateRepositoryImpl(
         request: SubtitleRequest
     ): TranslateResult<SubtitleResult> {
 
-        if (request.content.isBlank()) {
-            return TranslateResult.Error(
+        return if (request.content.isBlank()) {
+            TranslateResult.Error(
                 TranslateError.BadRequest("Subtitle content must not be blank")
             )
-        }
-
-        return safeApiCall {
-            api.translateSubtitles(request.toDto()).toDomain()
+        } else {
+            safeApiCall {
+                api.translateSubtitles(request.toDto()).toDomain()
+            }
         }
     }
 
@@ -90,20 +98,18 @@ internal class TranslateRepositoryImpl(
         request: EmailRequest
     ): TranslateResult<EmailResult> {
 
-        if (request.subject.isBlank()) {
-            return TranslateResult.Error(
+        return when {
+            request.subject.isBlank() -> TranslateResult.Error(
                 TranslateError.BadRequest("Subject must not be blank")
             )
-        }
 
-        if (request.email_body.isBlank()) {
-            return TranslateResult.Error(
+            request.email_body.isBlank() -> TranslateResult.Error(
                 TranslateError.BadRequest("Email body must not be blank")
             )
-        }
 
-        return safeApiCall {
-            api.translateEmail(request.toDto()).toDomain()
+            else -> safeApiCall {
+                api.translateEmail(request.toDto()).toDomain()
+            }
         }
     }
 
@@ -111,14 +117,14 @@ internal class TranslateRepositoryImpl(
         request: HtmlRequest
     ): TranslateResult<HtmlResult> {
 
-        if (request.html.isBlank()) {
-            return TranslateResult.Error(
+        return if (request.html.isBlank()) {
+            TranslateResult.Error(
                 TranslateError.BadRequest("HTML must not be blank")
             )
-        }
-
-        return safeApiCall {
-            api.translateHtml(request.toDto()).toDomain()
+        } else {
+            safeApiCall {
+                api.translateHtml(request.toDto()).toDomain()
+            }
         }
     }
 
@@ -132,5 +138,10 @@ internal class TranslateRepositoryImpl(
         return safeApiCall {
             api.getSupportedLanguages().toDomain()
         }
+    }
+
+    private companion object {
+        const val MAX_TEXT_LENGTH = 5000
+        const val MAX_BATCH_SIZE = 100
     }
 }

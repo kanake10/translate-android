@@ -70,6 +70,7 @@ import com.kanake10.translate_ui.vm.TranslationViewModel
 import kotlinx.coroutines.delay
 
 
+private const val DELAY = 2_000L
 /**
  * A full translation screen composable that handles text input, language selection,
  * translation execution and result display.
@@ -90,6 +91,8 @@ import kotlinx.coroutines.delay
  * Receives the loading state and a callback to start translation.
  * @param translateErrorContent Composable for displaying error messages.
  */
+
+@Suppress("LongMethod","LongParameterList")
 @Composable
 fun TranslationScreen(
     modifier: Modifier = Modifier,
@@ -177,6 +180,7 @@ fun TranslationScreen(
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 internal fun TranslationScreenContent(
     state: TranslationUiState.Ready,
@@ -258,6 +262,7 @@ internal fun TranslationScreenContent(
     }
 }
 
+@Suppress("LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun TranslateLanguageSelector(
@@ -382,6 +387,7 @@ internal fun TranslateInputField(
     }
 }
 
+@Suppress("LongMethod","LongParameterList")
 @Composable
 internal fun TranslationContent(
     text: String,
@@ -406,7 +412,7 @@ internal fun TranslationContent(
 
         LaunchedEffect(copied) {
             if (copied) {
-                delay(2_000)
+                delay(DELAY)
                 copied = false
             }
         }

@@ -200,10 +200,14 @@ object TranslateClient {
 
                 repository = TranslateRepositoryImpl(retrofit.create(TranslateApi::class.java))
                 ownedHttpClient = ownedCandidate
-            } catch (t: Throwable) {
+            } catch (e: IllegalArgumentException) {
                 ownedCandidate?.dispatcher?.executorService?.shutdown()
                 ownedCandidate?.connectionPool?.evictAll()
-                throw t
+                throw e
+            } catch (e: IllegalStateException) {
+                ownedCandidate?.dispatcher?.executorService?.shutdown()
+                ownedCandidate?.connectionPool?.evictAll()
+                throw e
             }
         }
     }
