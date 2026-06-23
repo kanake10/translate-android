@@ -19,6 +19,17 @@ import org.json.JSONObject
 import retrofit2.HttpException
 import java.io.IOException
 
+private const val EMPTY_DETAIL = ""
+private const val UNKNOWN_ERROR_CODE = -1
+private const val CODE_BAD_REQUEST = 400
+private const val CODE_UNAUTHORIZED = 401
+private const val CODE_PAYMENT_REQUIRED = 402
+private const val CODE_FORBIDDEN = 403
+private const val CODE_NOT_FOUND = 404
+private const val CODE_TOO_MANY_REQUESTS = 429
+private const val CODE_INTERNAL_SERVER_ERROR = 500
+private const val CODE_SERVICE_UNAVAILABLE = 503
+
 /**
  * Represents all possible errors from the TranslatePlus SDK.
  *
@@ -38,7 +49,7 @@ sealed class TranslateError {
     object NotFound : TranslateError()
     object InternalServerError : TranslateError()
     object ServiceUnavailable : TranslateError()
-    object NetworkError : TranslateError()
+    data class NetworkError(val detail: String) : TranslateError()
     data class Unknown(val code: Int, val detail: String) : TranslateError()
 
     /**
@@ -76,32 +87,50 @@ sealed class TranslateResult<out T> {
 
 internal fun HttpException.toTranslateError(): TranslateError {
     val errorBody = this.response()?.errorBody()?.string().orEmpty()
-    val detail = try {
-        JSONObject(errorBody).optString("detail", "")
-    } catch (_: Exception) {
-        ""
-    }
+    val detail = runCatching {
+        JSONObject(errorBody).optString("detail", EMPTY_DETAIL)
+    }.getOrDefault(EMPTY_DETAIL)
 
-    return when (this.code()) {
-        400 -> TranslateError.BadRequest(detail)
-        401 -> TranslateError.InvalidApiKey
-        402 -> {
+    return when (HttpStatusCode.from(this.code())) {
+        HttpStatusCode.BAD_REQUEST -> TranslateError.BadRequest(detail)
+        HttpStatusCode.UNAUTHORIZED -> TranslateError.InvalidApiKey
+
+        HttpStatusCode.PAYMENT_REQUIRED -> {
             val match = """remaining (\d+).+required (\d+)""".toRegex().find(detail)
             TranslateError.InsufficientCredits(
                 remaining = match?.groupValues?.getOrNull(1)?.toIntOrNull() ?: 0,
                 required = match?.groupValues?.getOrNull(2)?.toIntOrNull() ?: 0,
             )
         }
-        403 -> if (detail.contains("required", ignoreCase = true)) {
+
+        HttpStatusCode.FORBIDDEN -> if (detail.contains("required", ignoreCase = true)) {
             TranslateError.MissingApiKey
         } else {
             TranslateError.InvalidApiKey
         }
-        404 -> TranslateError.NotFound
-        429 -> TranslateError.RateLimitExceeded
-        500 -> TranslateError.InternalServerError
-        503 -> TranslateError.ServiceUnavailable
-        else -> TranslateError.Unknown(this.code(), detail)
+
+        HttpStatusCode.NOT_FOUND -> TranslateError.NotFound
+        HttpStatusCode.TOO_MANY_REQUESTS -> TranslateError.RateLimitExceeded
+        HttpStatusCode.INTERNAL_SERVER_ERROR -> TranslateError.InternalServerError
+        HttpStatusCode.SERVICE_UNAVAILABLE -> TranslateError.ServiceUnavailable
+
+        null -> TranslateError.Unknown(this.code(), detail)
+    }
+}
+
+internal enum class HttpStatusCode(val code: Int) {
+    BAD_REQUEST(CODE_BAD_REQUEST),
+    UNAUTHORIZED(CODE_UNAUTHORIZED),
+    PAYMENT_REQUIRED(CODE_PAYMENT_REQUIRED),
+    FORBIDDEN(CODE_FORBIDDEN),
+    NOT_FOUND(CODE_NOT_FOUND),
+    TOO_MANY_REQUESTS(CODE_TOO_MANY_REQUESTS),
+    INTERNAL_SERVER_ERROR(CODE_INTERNAL_SERVER_ERROR),
+    SERVICE_UNAVAILABLE(CODE_SERVICE_UNAVAILABLE);
+
+    companion object {
+        fun from(code: Int): HttpStatusCode? =
+            entries.firstOrNull { it.code == code }
     }
 }
 
@@ -123,7 +152,13 @@ internal suspend fun <T> safeApiCall(
 } catch (e: HttpException) {
     TranslateResult.Error(e.toTranslateError())
 } catch (e: IOException) {
-    TranslateResult.Error(TranslateError.NetworkError)
-} catch (e: Exception) {
-    TranslateResult.Error(TranslateError.Unknown(-1, e.message ?: "Unknown error"))
+    TranslateResult.Error(TranslateError.NetworkError(e.message ?: "IO error"))
+} catch (e: IllegalStateException) {
+    TranslateResult.Error(
+        TranslateError.Unknown(UNKNOWN_ERROR_CODE, e.message ?: "Illegal state")
+    )
+} catch (e: IllegalArgumentException) {
+    TranslateResult.Error(
+        TranslateError.Unknown(UNKNOWN_ERROR_CODE, e.message ?: "Illegal argument")
+    )
 }

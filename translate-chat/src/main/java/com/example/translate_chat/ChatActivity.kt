@@ -76,6 +76,7 @@ class ChatActivity : ComponentActivity() {
     }
 }
 
+@Suppress("LongMethod")
 @Composable
 fun TranslationChatScreen(viewModel: ChatTranslateViewModel = viewModel()) {
     val messages by viewModel.messages.collectAsStateWithLifecycle()
@@ -218,7 +219,7 @@ internal fun LanguageDropdown(
         }
     }
 }
-
+@Suppress("LongMethod")
 @Composable
 internal fun ChatBubble(message: ChatMessage) {
     Column(

@@ -21,10 +21,13 @@ import okhttp3.Response
 
 internal class TranslateInterceptors(private val apiKey: String) : Interceptor {
     override fun intercept(chain: Interceptor.Chain): Response {
-        val request = chain.request().newBuilder()
+        val originalRequest = chain.request()
+
+        val request = originalRequest.newBuilder()
             .addHeader("X-API-KEY", apiKey)
             .addHeader("Content-Type", "application/json")
             .build()
+
         return chain.proceed(request)
     }
 }
