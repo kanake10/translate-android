@@ -15,6 +15,7 @@
  */
 package com.kanake10.translate_ui.ui
 
+import android.content.ClipData
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -57,8 +58,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -68,6 +69,7 @@ import com.kanake10.translate_ui.vm.TranslateController
 import com.kanake10.translate_ui.vm.TranslationUiState
 import com.kanake10.translate_ui.vm.TranslationViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 
 private const val DELAY = 2_000L
@@ -407,7 +409,8 @@ internal fun TranslationContent(
     },
 ) {
     if (text.isNotEmpty()) {
-        val clipboardManager = LocalClipboardManager.current
+        val clipboard = LocalClipboard.current
+        val scope = rememberCoroutineScope()
         var copied by remember { mutableStateOf(false) }
 
         LaunchedEffect(copied) {
@@ -440,9 +443,19 @@ internal fun TranslationContent(
                 if (copyEnabled) {
                     IconButton(
                         onClick = {
-                            clipboardManager.setText(AnnotatedString(text))
-                            copied = true
-                            onCopied()
+                            scope.launch {
+                                clipboard.setClipEntry(
+                                    ClipEntry(
+                                        ClipData.newPlainText(
+                                            "translation",
+                                            text
+                                        )
+                                    )
+                                )
+
+                                copied = true
+                                onCopied()
+                            }
                         },
                         modifier = Modifier.size(22.dp),
                     ) {
