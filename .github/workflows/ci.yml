@@ -118,9 +118,8 @@ jobs:
           java-version: 17
 
       - uses: gradle/actions/setup-gradle@v3
-
-      - name: Run Paparazzi snapshot tests
-        run: ./gradlew :translate-ui:testDebugUnitTest
+      - name: Verify Paparazzi snapshots
+        run: ./gradlew :translate-ui:verifyPaparazziDebug
 
       - name: Upload snapshot failures
         if: failure()
