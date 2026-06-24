@@ -253,7 +253,11 @@ package com.kanake10.translate.util {
   }
 
   public static final class TranslateError.NetworkError extends com.kanake10.translate.util.TranslateError {
-    field public static final com.kanake10.translate.util.TranslateError.NetworkError INSTANCE;
+    ctor public TranslateError.NetworkError(String detail);
+    method public String component1();
+    method public com.kanake10.translate.util.TranslateError.NetworkError copy(optional String detail);
+    method @InaccessibleFromKotlin public String getDetail();
+    property public String detail;
   }
 
   public static final class TranslateError.NotFound extends com.kanake10.translate.util.TranslateError {

@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.publish)
     alias(libs.plugins.dokka)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kover)
 }
 
 android {

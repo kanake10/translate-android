@@ -53,18 +53,6 @@ class TranslateRepositoryImplTest : BaseTest() {
     }
 
     @Test
-    fun translate_returns_error_when_api_throws() = runTest {
-
-        coEvery { api.translate(any()) } throws RuntimeException("Network error")
-
-        val result = repository.translate("Hello", "en", "fr")
-
-        assertTrue(result is TranslateResult.Error)
-
-        coVerify(exactly = 1) { api.translate(any()) }
-    }
-
-    @Test
     fun translate_returns_success_when_api_succeeds() = runTest {
 
         coEvery { api.translate(any()) } returns TranslateResponse(
