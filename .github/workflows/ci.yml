@@ -93,7 +93,7 @@ jobs:
         run: ./gradlew :translate:testDebugUnitTest :translate-ui:testDebugUnitTest
 
       - name: Generate coverage report
-        run: ./gradlew :translate:koverXmlReport
+        run: ./gradlew :translate:koverXmlReportDebug
 
       - name: Upload test results
         if: always()
