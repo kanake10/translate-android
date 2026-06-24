@@ -17,17 +17,28 @@ package com.example.translate_chat.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-private const val COLOR_PURPLE_80 = 0xFFD0BCFF
-private const val COLOR_PURPLE_GREY_80 = 0xFFCCC2DC
-private const val COLOR_PINK_80 = 0xFFEFB8C8
-private const val COLOR_PURPLE_40 = 0xFF6650a4
-private const val COLOR_PURPLE_GREY_40 = 0xFF625b71
-private const val COLOR_PINK_40 = 0xFF7D5260
+private const val COLOR_APP_GREEN = 0xFF25D366
+private const val COLOR_APP_DARK_GREEN = 0xFF128C7E
 
-val Purple80 = Color(COLOR_PURPLE_80)
-val PurpleGrey80 = Color(COLOR_PURPLE_GREY_80)
-val Pink80 = Color(COLOR_PINK_80)
+private const val COLOR_LIGHT_BACKGROUND = 0xFFFFFFFF
+private const val COLOR_LIGHT_SURFACE_VARIANT = 0xFFF0F2F5
 
-val Purple40 = Color(COLOR_PURPLE_40)
-val PurpleGrey40 = Color(COLOR_PURPLE_GREY_40)
-val Pink40 = Color(COLOR_PINK_40)
+private const val COLOR_DARK_BACKGROUND = 0xFF111B21
+private const val COLOR_DARK_SURFACE = 0xFF202C33
+private const val COLOR_DARK_SURFACE_VARIANT = 0xFF2A3942
+
+private const val COLOR_WHITE = 0xFFFFFFFF
+private const val COLOR_BLACK = 0xFF000000
+
+val AppGreen = Color(COLOR_APP_GREEN)
+val AppDarkGreen = Color(COLOR_APP_DARK_GREEN)
+
+val LightBackground = Color(COLOR_LIGHT_BACKGROUND)
+val LightSurfaceVariant = Color(COLOR_LIGHT_SURFACE_VARIANT)
+
+val DarkBackground = Color(COLOR_DARK_BACKGROUND)
+val DarkSurface = Color(COLOR_DARK_SURFACE)
+val DarkSurfaceVariant = Color(COLOR_DARK_SURFACE_VARIANT)
+
+val AppWhite = Color(COLOR_WHITE)
+val AppBlack = Color(COLOR_BLACK)

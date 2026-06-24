@@ -18,6 +18,7 @@ package com.example.translate_chat
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +40,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -46,6 +48,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -56,7 +59,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -90,6 +92,7 @@ fun TranslationChatScreen(viewModel: ChatTranslateViewModel = viewModel()) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .padding(8.dp)
     ) {
 
@@ -143,11 +146,24 @@ fun TranslationChatScreen(viewModel: ChatTranslateViewModel = viewModel()) {
                     OutlinedTextField(
                         value = inputText,
                         onValueChange = { inputText = it },
-                        placeholder = { Text("Type text...") },
+                        placeholder = {
+                            Text(
+                                "Enter text to translate...",
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        },
                         singleLine = false,
                         maxLines = Int.MAX_VALUE,
                         shape = RoundedCornerShape(28.dp),
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(lineHeight = 20.sp),
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(
+                            lineHeight = 20.sp,
+                            color = MaterialTheme.colorScheme.onSurface
+                        ),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = MaterialTheme.colorScheme.primary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            cursorColor = MaterialTheme.colorScheme.primary
+                        ),
                         modifier = Modifier.fillMaxWidth()
                     )
                 }
@@ -174,7 +190,7 @@ fun TranslationChatScreen(viewModel: ChatTranslateViewModel = viewModel()) {
                         Icon(
                             imageVector = Icons.Default.Send,
                             contentDescription = "Send",
-                            tint = Color.Green,
+                            tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(36.dp)
                         )
                     }
@@ -200,7 +216,13 @@ internal fun LanguageDropdown(
     var expanded by remember { mutableStateOf(false) }
 
     Box {
-        Button(onClick = { expanded = true }) {
+        Button(
+            onClick = { expanded = true },
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
+        ) {
             Text(selectedLanguage?.name ?: "Select")
         }
         DropdownMenu(
@@ -232,7 +254,7 @@ internal fun ChatBubble(message: ChatMessage) {
             Text(
                 text = message.sourceLangCode ?: "??",
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .align(Alignment.Start)
                     .padding(start = 8.dp, bottom = 2.dp)
@@ -246,8 +268,12 @@ internal fun ChatBubble(message: ChatMessage) {
             ) {
                 Text(
                     text = message.sourceText,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     style = MaterialTheme.typography.bodyLarge,
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                    modifier = Modifier.padding(
+                        horizontal = 12.dp,
+                        vertical = 8.dp
+                    )
                 )
             }
         }
@@ -256,9 +282,7 @@ internal fun ChatBubble(message: ChatMessage) {
 
         if (message.isLoading) {
             CircularProgressIndicator(
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .size(16.dp),
+                modifier = Modifier.size(24.dp),
                 strokeWidth = 2.dp,
                 color = MaterialTheme.colorScheme.primary
             )
@@ -268,7 +292,7 @@ internal fun ChatBubble(message: ChatMessage) {
             Text(
                 text = message.targetLangCode ?: "??",
                 style = MaterialTheme.typography.labelSmall,
-                color = Color.Gray,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier
                     .align(Alignment.End)
                     .padding(end = 8.dp, bottom = 2.dp)
