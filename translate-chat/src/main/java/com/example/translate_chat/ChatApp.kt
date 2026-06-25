@@ -20,14 +20,13 @@ import com.kanake10.translate.TranslateClient
 import com.kanake10.translate.TranslateConfiguration
 
 private const val TIMEOUT_SECONDS = 30L
-private const val API_KEY = ""
 class ChatApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
 
         val translateConfiguration = TranslateConfiguration.Builder(
-            apiKey = API_KEY
+            apiKey = BuildConfig.API_KEY
         )
             .timeoutSeconds(TIMEOUT_SECONDS)
             .build()

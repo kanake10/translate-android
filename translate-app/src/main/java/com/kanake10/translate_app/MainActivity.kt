@@ -40,13 +40,12 @@ import com.kanake10.translate_ui.ui.Translate
 import com.kanake10.translate_ui.ui.TranslationScreen
 
 private const val TIMEOUT_SECONDS = 30L
-private const val API_KEY = "tp_live_1ddaf8e781d7a162b63678d0e84caea6"
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val translateConfiguration = TranslateConfiguration.Builder(
-            apiKey = API_KEY
+            apiKey = BuildConfig.API_KEY
         )
             .timeoutSeconds(TIMEOUT_SECONDS)
             .build()
