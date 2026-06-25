@@ -16,8 +16,10 @@
 package com.kanake10.translate_ui
 
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -27,78 +29,54 @@ import androidx.compose.ui.platform.LocalInspectionMode
 import androidx.compose.ui.unit.dp
 import app.cash.paparazzi.DeviceConfig
 import app.cash.paparazzi.Paparazzi
-import com.android.resources.NightMode
-import com.google.testing.junit.testparameterinjector.TestParameter
-import com.google.testing.junit.testparameterinjector.TestParameterInjector
+import com.kanake10.translate_ui.ui.theme.TranslateTheme
 import org.junit.Rule
-import org.junit.runner.RunWith
 
 /**
  * This base class allows us to write Paparazzi tests that validate composable content in both light and dark theme
  * using a parameterized test. Just extend this base class and call [snapshot] with your composable content.
  */
-@RunWith(TestParameterInjector::class)
 abstract class BasePaparazziTest {
     @get:Rule
     @Suppress("ktlint:standard:backing-property-naming", "VariableNaming")
-    val _paparazzi = Paparazzi()
+    val _paparazzi = Paparazzi(
+        deviceConfig = DeviceConfig.NEXUS_5,
+    )
 
-    @TestParameter
-    val testInput: TestInput = TestInput.LIGHT_PHONE
-
-    /**
-     * Validates the supplied [content] in both light and dark theme.
-     */
     fun snapshot(
         screenPaddingDp: Int = 16,
         content: @Composable () -> Unit,
     ) {
-        _paparazzi.unsafeUpdateConfig(testInput.deviceConfig)
-
         _paparazzi.snapshot {
             CompositionLocalProvider(
                 LocalInspectionMode provides true,
             ) {
-                MaterialTheme {
-                    Surface(
-                        modifier = Modifier
-                            .fillMaxSize(),
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(screenPaddingDp.dp),
-                        ) {
-                            content()
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                ) {
+                    listOf(false, true).forEach { isDark ->
+                        TranslateTheme(darkTheme = isDark) {
+                            Surface(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .wrapContentHeight(),
+                                color = MaterialTheme.colorScheme.background
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .wrapContentHeight()
+                                        .padding(screenPaddingDp.dp),
+                                ) {
+                                    content()
+                                }
+                            }
                         }
                     }
                 }
             }
         }
-    }
-
-    enum class TestInput(
-        val deviceConfig: DeviceConfig,
-    ) {
-        LIGHT_PHONE(
-            deviceConfig = DeviceConfig.NEXUS_5.copy(
-                nightMode = NightMode.NOTNIGHT,
-            ),
-        ),
-        DARK_PHONE(
-            deviceConfig = DeviceConfig.NEXUS_5.copy(
-                nightMode = NightMode.NIGHT,
-            ),
-        ),
-//        LANDSCAPE_PHONE(
-//            deviceConfig = DeviceConfig.NEXUS_5.copy(
-//                orientation = ScreenOrientation.LANDSCAPE,
-//            ),
-//        ),
-//        TABLET(
-//            deviceConfig = DeviceConfig.PIXEL_C.copy(
-//                orientation = ScreenOrientation.LANDSCAPE,
-//            ),
-//        ),
     }
 }

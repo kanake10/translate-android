@@ -36,8 +36,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.kanake10.translate.TranslateClient
 import com.kanake10.translate.TranslateConfiguration
-import com.kanake10.translate_ui.ui.Translate
-import com.kanake10.translate_ui.ui.TranslationScreen
+import com.kanake10.translate_ui.screen.Translate
+import com.kanake10.translate_ui.screen.TranslationScreen
+import com.kanake10.translate_ui.ui.theme.TranslateTheme
 
 private const val TIMEOUT_SECONDS = 30L
 
@@ -51,7 +52,7 @@ class MainActivity : ComponentActivity() {
             .build()
         TranslateClient.initialize(translateConfiguration)
         setContent {
-            MaterialTheme {
+            TranslateTheme() {
                 TranslationScreen()
             }
         }

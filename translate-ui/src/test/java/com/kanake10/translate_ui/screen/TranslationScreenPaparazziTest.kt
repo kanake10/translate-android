@@ -13,10 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kanake10.translate_ui.ui
+package com.kanake10.translate_ui.screen
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
 import com.google.testing.junit.testparameterinjector.TestParameterInjector
 import com.kanake10.translate.domain.models.Language
 import com.kanake10.translate_ui.BasePaparazziTest
@@ -32,18 +35,9 @@ import org.junit.runner.RunWith
 class TranslationScreenPaparazziTest : BasePaparazziTest() {
 
     private val languages = listOf(
-        Language(
-            code = "en",
-            name = "English",
-        ),
-        Language(
-            code = "sw",
-            name = "Swahili",
-        ),
-        Language(
-            code = "fr",
-            name = "French",
-        ),
+        Language(code = "en", name = "English"),
+        Language(code = "sw", name = "Swahili"),
+        Language(code = "fr", name = "French"),
     )
 
     private val readyState = TranslationUiState.Ready(
@@ -56,11 +50,16 @@ class TranslationScreenPaparazziTest : BasePaparazziTest() {
         error = null,
     )
 
+    private val contentModifier = Modifier
+        .fillMaxWidth()
+        .wrapContentHeight()
+
     @Test
     fun translationScreen() {
         snapshot {
             TranslationScreenContent(
                 state = readyState,
+                modifier = contentModifier,
             )
         }
     }
@@ -128,42 +127,30 @@ class TranslationScreenPaparazziTest : BasePaparazziTest() {
 
     @Test
     fun translationScreenWithError() {
-
-        val state = readyState.copy(
-            error = "Unable to translate text",
-        )
-
         snapshot {
             TranslationScreenContent(
-                state = state,
+                state = readyState.copy(error = "Unable to translate text"),
+                modifier = contentModifier,
             )
         }
     }
 
     @Test
     fun translationScreenLoading() {
-
-        val state = readyState.copy(
-            isTranslating = true,
-        )
-
         snapshot {
             TranslationScreenContent(
-                state = state,
+                state = readyState.copy(isTranslating = true),
+                modifier = contentModifier,
             )
         }
     }
 
     @Test
     fun translationScreenWithoutTranslation() {
-
-        val state = readyState.copy(
-            translatedText = "",
-        )
-
         snapshot {
             TranslationScreenContent(
-                state = state,
+                state = readyState.copy(translatedText = ""),
+                modifier = contentModifier,
             )
         }
     }
@@ -173,6 +160,7 @@ class TranslationScreenPaparazziTest : BasePaparazziTest() {
         snapshot {
             TranslationScreenContent(
                 state = readyState,
+                modifier = contentModifier,
                 headerContent = {
                     Text(
                         text = "Translator",
@@ -188,16 +176,16 @@ class TranslationScreenPaparazziTest : BasePaparazziTest() {
         snapshot {
             TranslationScreenContent(
                 state = readyState,
+                modifier = contentModifier,
                 translationContent = { translated ->
                     TranslationContent(
                         text = translated,
                         copyEnabled = false,
                     )
-                }
+                },
             )
         }
     }
-
 
     @Test
     fun translateComposable() {

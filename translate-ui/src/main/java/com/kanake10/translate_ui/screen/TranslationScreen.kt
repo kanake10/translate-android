@@ -13,10 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.kanake10.translate_ui.ui
+package com.kanake10.translate_ui.screen
 
 import android.content.ClipData
 import androidx.compose.animation.Crossfade
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -255,6 +256,7 @@ internal fun TranslationScreenContent(
     Column(
         modifier = modifier
             .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
             .windowInsetsPadding(WindowInsets.safeDrawing)
             .padding(16.dp)
             .verticalScroll(rememberScrollState())
@@ -405,9 +407,16 @@ internal fun TranslateInputField(
         BasicTextField(
             value = text,
             onValueChange = onTextChange,
+            textStyle = LocalTextStyle.current.copy(
+                color = MaterialTheme.colorScheme.onBackground
+            ),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(120.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(8.dp)
+                )
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.primary,
@@ -452,6 +461,10 @@ internal fun TranslationContent(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .background(
+                    color = MaterialTheme.colorScheme.surfaceVariant,
+                    shape = RoundedCornerShape(8.dp)
+                )
                 .border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.secondary,
@@ -467,6 +480,7 @@ internal fun TranslationContent(
                 Text(
                     text = "Translation",
                     style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
                 if (copyEnabled) {
@@ -503,6 +517,7 @@ internal fun TranslationContent(
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
     }
