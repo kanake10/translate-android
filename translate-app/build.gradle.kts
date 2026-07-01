@@ -7,9 +7,14 @@ plugins {
     alias(libs.plugins.kotlin.android)
 }
 
-val localProperties = Properties().apply {
-    load(File(rootDir, "local.properties").inputStream())
+val localProperties = Properties()
+val localPropertiesFile = File(rootDir, "local.properties")
+if (localPropertiesFile.exists()) {
+    localPropertiesFile.inputStream().use { localProperties.load(it) }
 }
+
+val apiKeyProperty: String? = localProperties.getProperty("API_KEY") ?: System.getenv("API_KEY")
+val apiKey = apiKeyProperty ?: throw GradleException("API_KEY is missing! Add it to local.properties or set an API_KEY Environment Variable in your CI.")
 
 android {
     namespace = "com.kanake10.translate_app"
@@ -24,10 +29,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        buildConfigField(
-            "String", "API_KEY",
-            "\"${localProperties.getProperty("API_KEY") ?: throw GradleException("API_KEY missing from local.properties")}\""
-        )
+        buildConfigField("String", "API_KEY", "\"$apiKey\"")
     }
 
     buildTypes {
