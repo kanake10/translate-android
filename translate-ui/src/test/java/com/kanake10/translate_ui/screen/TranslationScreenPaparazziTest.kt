@@ -30,6 +30,7 @@ import org.junit.runner.RunWith
 
 //./gradlew recordPaparazziDebug
 //./gradlew verifyPaparazziDebug
+//./gradlew metalavaGenerateSignatureDebug
 
 @RunWith(TestParameterInjector::class)
 class TranslationScreenPaparazziTest : BasePaparazziTest() {

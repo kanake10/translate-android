@@ -44,9 +44,6 @@ android {
         compose = true
         buildConfig = true
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
 }
 
 dependencies {

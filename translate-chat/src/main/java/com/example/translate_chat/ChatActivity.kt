@@ -56,9 +56,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -84,9 +86,12 @@ fun TranslationChatScreen(viewModel: ChatTranslateViewModel = viewModel()) {
     val messages by viewModel.messages.collectAsStateWithLifecycle()
     val languages by viewModel.languages.collectAsStateWithLifecycle()
     val listState = rememberLazyListState()
-    var inputText by remember { mutableStateOf("") }
-    var sourceLanguage by remember { mutableStateOf<Language?>(null) }
-    var targetLanguage by remember { mutableStateOf<Language?>(null) }
+    var inputText by rememberSaveable { mutableStateOf("") }
+    var sourceLangCode by rememberSaveable { mutableStateOf<String?>(null) }
+    var targetLangCode by rememberSaveable { mutableStateOf<String?>(null) }
+
+    val sourceLanguage = languages.find { it.code == sourceLangCode }
+    val targetLanguage = languages.find { it.code == targetLangCode }
     val scrollState = rememberScrollState()
 
     Column(
@@ -121,13 +126,13 @@ fun TranslationChatScreen(viewModel: ChatTranslateViewModel = viewModel()) {
                 LanguageDropdown(
                     languages = languages,
                     selectedLanguage = sourceLanguage ?: languages.find { it.code == "auto" },
-                    onLanguageSelected = { sourceLanguage = it }
+                    onLanguageSelected = { sourceLangCode = it.code }
                 )
 
                 LanguageDropdown(
                     languages = languages,
                     selectedLanguage = targetLanguage ?: languages.find { it.code == "en" },
-                    onLanguageSelected = { targetLanguage = it }
+                    onLanguageSelected = { targetLangCode = it.code }
                 )
             }
 
@@ -148,7 +153,7 @@ fun TranslationChatScreen(viewModel: ChatTranslateViewModel = viewModel()) {
                         onValueChange = { inputText = it },
                         placeholder = {
                             Text(
-                                "Enter text to translate...",
+                                stringResource(R.string.enter_text_to_translate),
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         },
@@ -189,7 +194,7 @@ fun TranslationChatScreen(viewModel: ChatTranslateViewModel = viewModel()) {
                     } else {
                         Icon(
                             imageVector = Icons.Default.Send,
-                            contentDescription = "Send",
+                            contentDescription = stringResource(R.string.send),
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(36.dp)
                         )
