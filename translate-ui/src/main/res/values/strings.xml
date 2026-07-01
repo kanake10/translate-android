@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="state_error_icon">state error icon</string>
+    <string name="state_error_icon">Error</string>
     <string name="from">From</string>
     <string name="to">To</string>
     <string name="enter_text">Enter text</string>
