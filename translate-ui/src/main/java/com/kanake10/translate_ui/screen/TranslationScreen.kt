@@ -484,7 +484,7 @@ internal fun TranslationContent(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = "Translation",
+                    text = stringResource(R.string.translation),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
