@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="state_error_icon">state error icon</string>
+    <string name="from">From</string>
+    <string name="to">To</string>
+    <string name="enter_text">Enter text</string>
+    <string name="copied">Copied</string>
+    <string name="copy_translation">Copy translation</string>
+    <string name="translation">translation</string>
+    <string name="copy_icon">copy_icon</string>
+    <string name="translate">Translate</string>
+    <string name="undo_translation">Undo translation</string>
+</resources>

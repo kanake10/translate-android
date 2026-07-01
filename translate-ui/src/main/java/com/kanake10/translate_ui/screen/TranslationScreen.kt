@@ -66,12 +66,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipEntry
 import androidx.compose.ui.platform.LocalClipboard
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.kanake10.translate.domain.models.Language
+import com.kanake10.translate_ui.R
 import com.kanake10.translate_ui.vm.TranslateController
 import com.kanake10.translate_ui.vm.TranslationUiState
 import com.kanake10.translate_ui.vm.TranslationViewModel
@@ -162,7 +164,7 @@ fun TranslationScreen(
                 ) {
                     Icon(
                         imageVector = Icons.Outlined.ErrorOutline,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.state_error_icon),
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(48.dp)
                     )
@@ -324,7 +326,7 @@ internal fun TranslateLanguageSelector(
                     value = it,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("From") },
+                    label = { Text(stringResource(R.string.from)) },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = sourceExpanded)
                     },
@@ -363,7 +365,7 @@ internal fun TranslateLanguageSelector(
                     value = it,
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text("To") },
+                    label = { Text(stringResource(R.string.to)) },
                     trailingIcon = {
                         ExposedDropdownMenuDefaults.TrailingIcon(expanded = targetExpanded)
                     },
@@ -398,7 +400,7 @@ internal fun TranslateInputField(
 ) {
     Column {
         Text(
-            text = "Enter text",
+            text = stringResource(R.string.enter_text),
             style = MaterialTheme.typography.titleMedium
         )
 
@@ -436,7 +438,11 @@ internal fun TranslationContent(
     copyIcon: @Composable (copied: Boolean) -> Unit = { copied ->
         Icon(
             imageVector = if (copied) Icons.Outlined.Check else Icons.Outlined.ContentCopy,
-            contentDescription = if (copied) "Copied" else "Copy translation",
+            contentDescription = if (copied) {
+                stringResource(R.string.copied)
+            } else {
+                stringResource(R.string.copy_translation)
+            },
             modifier = Modifier.size(16.dp),
             tint = if (copied) {
                 MaterialTheme.colorScheme.primary
@@ -504,7 +510,7 @@ internal fun TranslationContent(
                     ) {
                         Crossfade(
                             targetState = copied,
-                            label = "copy_icon",
+                            label = stringResource(R.string.copy_icon),
                         ) { isCopied ->
                             copyIcon(isCopied)
                         }
@@ -539,7 +545,7 @@ internal fun TranslateButton(
                 strokeWidth = 2.dp
             )
         } else {
-            Text("Translate")
+            Text(stringResource(R.string.translate))
         }
     }
 }
@@ -646,6 +652,11 @@ private fun DefaultTranslateButton(
             )
             Spacer(modifier = Modifier.width(6.dp))
         }
-        Text(if (isTranslated) "Undo translation" else "Translate")
+        Text(if (isTranslated) {
+            stringResource(R.string.undo_translation)
+        } else {
+            stringResource(R.string.translate)
+        }
+        )
     }
 }
