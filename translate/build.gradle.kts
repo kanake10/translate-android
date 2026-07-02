@@ -27,7 +27,7 @@ mavenPublishing {
     publishToMavenCentral()
     signAllPublications()
 
-    coordinates(groupId = "io.github.kanake10", artifactId = "translate", version = "1.2.0")
+    coordinates(groupId = "io.github.kanake10", artifactId = "translate", version = "1.3.0")
 
     pom {
         name.set("Translate SDK")
