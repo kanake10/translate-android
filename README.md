@@ -22,10 +22,10 @@ Add the dependencies to your module-level `build.gradle.kts`:
 
 ```kotlin
 // Core SDK (required)
-implementation("io.github.kanake10:translate:1.1.0")
+implementation("io.github.kanake10:translate:VERSION")
 
 // Optional Compose UI module
-implementation("io.github.kanake10:translate-ui:1.1.0")
+implementation("io.github.kanake10:translate-ui:VERSION")
 ```
 
 ---
