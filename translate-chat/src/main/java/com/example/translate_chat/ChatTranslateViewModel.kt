@@ -37,10 +37,7 @@ class ChatTranslateViewModel : ViewModel() {
     val languages: StateFlow<List<Language>> = _languages
 
     private val _selectedSource = MutableStateFlow<Language?>(null)
-    val selectedSource: StateFlow<Language?> = _selectedSource
-
     private val _selectedTarget = MutableStateFlow<Language?>(null)
-    val selectedTarget: StateFlow<Language?> = _selectedTarget
 
     var isTranslating by mutableStateOf(false)
         private set
